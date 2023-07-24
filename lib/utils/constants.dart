@@ -1,0 +1,10 @@
+class Constants {
+  //route
+  static const routeLaunch = '/launch';
+  static const routeBaseNavigation = '/base-navigation';
+  static const routeLogin = '/login';
+  static const routeRegister = '/register';
+  static const routeTask = '/task';
+  static const routeHistory = '/history';
+  static const routeDictionary = '/dictionary';
+}
