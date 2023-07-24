@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:source_code/screen/base_navigation_screen.dart';
 import 'package:source_code/screen/dictionary_screen.dart';
 import 'package:source_code/screen/history_screen.dart';
@@ -10,7 +11,8 @@ import 'package:source_code/screen/task_screen.dart';
 
 import 'utils/constants.dart';
 
-void main() {
+void main() async {
+  await GetStorage.init();
   runApp(const MyApp());
 }
 
@@ -21,7 +23,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        title: 'Flutter Demo',
+        title: 'Master Project',
         theme:
             ThemeData(primarySwatch: Colors.grey, scaffoldBackgroundColor: const Color(0xffF6F6F6)),
         initialRoute: "/launch",

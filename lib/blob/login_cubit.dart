@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:source_code/utils/constants.dart';
+import 'package:source_code/utils/preference.dart';
 
 class LoginCubit extends Cubit<LoginState> {
   LoginCubit() : super(const LoginState());
@@ -11,6 +12,7 @@ class LoginCubit extends Cubit<LoginState> {
       emit(state.copyWith(errorMessage: "Username and password cannot be empty"));
       return;
     }
+    await Preferences().savePrefForLoggedIn(state.username, state.password);
     Navigator.pushReplacementNamed(context, Constants.routeBaseNavigation);
   }
 

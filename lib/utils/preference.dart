@@ -3,7 +3,7 @@ import 'dart:core';
 import 'package:get_storage/get_storage.dart';
 
 class Preferences {
-  static const String EMAIL_KEY = 'email';
+  static const String USERNAME_KEY = 'username';
   static const String PASSWORD_KEY = 'password';
 
   static final Preferences _sharedInstance = Preferences._internal();
@@ -23,13 +23,13 @@ class Preferences {
     return _storage!;
   }
 
-  bool get isLoggedIn => !(email == '' || password == '');
+  bool get isLoggedIn => !(username == '' || password == '');
 
-  Future<void> setEmail(String email) {
-    return _getStorage().write(EMAIL_KEY, email);
+  Future<void> setUsername(String username) {
+    return _getStorage().write(USERNAME_KEY, username);
   }
 
-  String get email => _getStorage().read(EMAIL_KEY) ?? '';
+  String get username => _getStorage().read(USERNAME_KEY) ?? '';
 
   Future<void> setPassword(String password) {
     return _getStorage().write(PASSWORD_KEY, password);
@@ -37,17 +37,12 @@ class Preferences {
 
   String get password => _getStorage().read(PASSWORD_KEY) ?? '';
 
-  Future<void> savePrefForLoggedIn(String email, String password) async {
-    await setEmail(email);
+  Future<void> savePrefForLoggedIn(String username, String password) async {
+    await setUsername(username);
     await setPassword(password);
   }
 
-  Future<void> savePrefForRegistered(String email) async {
-    await setEmail(email);
-    await setPassword('');
-  }
-
-  Future<void> savePrefForLoggedOut() async {
+  Future<void> clearPrefForLoggedOut() async {
     await _getStorage().erase();
   }
 }
