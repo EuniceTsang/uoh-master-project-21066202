@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get_storage/get_storage.dart';
@@ -24,8 +25,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
         title: 'Master Project',
-        theme:
-            ThemeData(primarySwatch: Colors.grey, scaffoldBackgroundColor: const Color(0xffF6F6F6)),
+        theme: ThemeData(
+          primarySwatch: Colors.grey,
+          scaffoldBackgroundColor: const Color(0xffF6F6F6),
+          textSelectionTheme: TextSelectionThemeData(selectionHandleColor: CupertinoColors.systemGrey4)
+        ),
         initialRoute: "/launch",
         builder: EasyLoading.init(),
         routes: {
