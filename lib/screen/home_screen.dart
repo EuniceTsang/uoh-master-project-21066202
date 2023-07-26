@@ -33,11 +33,11 @@ class _HomeScreenView extends StatelessWidget {
             padding: const EdgeInsets.all(8.0),
             child: Column(
               children: [
-                _buildProfileBlock(),
+                _buildProfileBlock(context),
                 _buildWordOfTheDayBlock(context),
-                _buildHistoryBlock(),
-                _buildRecommendReadingBlock(),
-                _buildLatestTopicBlock()
+                _buildHistoryBlock(context),
+                _buildRecommendReadingBlock(context),
+                _buildLatestTopicBlock(context)
               ],
             ),
           ),
@@ -90,7 +90,7 @@ class _HomeScreenView extends StatelessWidget {
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
   List<String> testHistoryWords = ["condemn", "fetter", "forge", "odour"];
 
-  Widget _buildProfileBlock() {
+  Widget _buildProfileBlock(BuildContext context) {
     return Card(
         child: Padding(
       padding: const EdgeInsets.all(5.0),
@@ -135,7 +135,9 @@ class _HomeScreenView extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 5),
               child: ElevatedButton(
                   style: ElevatedButton.styleFrom(backgroundColor: Color(0xffFFDF8B)),
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.pushNamed(context, Constants.routeTask);
+                  },
                   child: Text("Check my tasks")),
             )
           ],
@@ -162,7 +164,8 @@ class _HomeScreenView extends StatelessWidget {
                 ),
                 TextButton(
                   onPressed: () {
-                    Navigator.pushNamed(context, Constants.routeDictionary, arguments: "loquacious");
+                    Navigator.pushNamed(context, Constants.routeDictionary,
+                        arguments: "loquacious");
                   },
                   child: Row(
                     children: [
@@ -214,7 +217,7 @@ class _HomeScreenView extends StatelessWidget {
     );
   }
 
-  Widget _buildHistoryBlock() {
+  Widget _buildHistoryBlock(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0),
       child: Column(
@@ -232,7 +235,7 @@ class _HomeScreenView extends StatelessWidget {
                 ),
                 TextButton(
                   onPressed: () {
-                    // Add your button's onPressed action here
+                    Navigator.pushNamed(context, Constants.routeHistory);
                   },
                   child: Row(
                     children: [
@@ -284,7 +287,7 @@ class _HomeScreenView extends StatelessWidget {
     );
   }
 
-  Widget _buildRecommendReadingBlock() {
+  Widget _buildRecommendReadingBlock(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0),
       child: Column(
@@ -344,7 +347,7 @@ class _HomeScreenView extends StatelessWidget {
     );
   }
 
-  Widget _buildLatestTopicBlock() {
+  Widget _buildLatestTopicBlock(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0),
       child: Column(
