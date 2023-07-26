@@ -7,4 +7,5 @@ class Constants {
   static const routeTask = '/task';
   static const routeHistory = '/history';
   static const routeDictionary = '/dictionary';
+  static const routeReading = '/reading';
 }

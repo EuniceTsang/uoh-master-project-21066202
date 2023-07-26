@@ -305,7 +305,7 @@ class _HomeScreenView extends StatelessWidget {
                 ),
                 TextButton(
                   onPressed: () {
-                    // Add your button's onPressed action here
+                    Navigator.pushNamed(context, Constants.routeReading);
                   },
                   child: Row(
                     children: [

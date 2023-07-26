@@ -7,6 +7,7 @@ import 'package:source_code/screen/dictionary_screen.dart';
 import 'package:source_code/screen/history_screen.dart';
 import 'package:source_code/screen/launch_screen.dart';
 import 'package:source_code/screen/login_screen.dart';
+import 'package:source_code/screen/reading_screen.dart';
 import 'package:source_code/screen/register_screen.dart';
 import 'package:source_code/screen/task_screen.dart';
 
@@ -40,6 +41,7 @@ class MyApp extends StatelessWidget {
           Constants.routeTask: (context) => const TaskScreen(),
           Constants.routeHistory: (context) => const HistoryScreen(),
           Constants.routeDictionary: (context) => const DictionaryScreen(),
+          Constants.routeReading: (context) => const ReadingScreen(),
         });
   }
 }

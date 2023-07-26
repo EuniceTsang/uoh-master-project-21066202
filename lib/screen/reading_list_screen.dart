@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:source_code/blob/reading_list_cubit.dart';
+import 'package:source_code/utils/constants.dart';
 
 class ReadingListScreen extends StatelessWidget {
   const ReadingListScreen({super.key});
@@ -35,35 +36,40 @@ class _ReadingListScreenView extends StatelessWidget {
               return Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Card(
-                    child: Column(
+                    child: InkWell(
+                      onTap: (){
+                        Navigator.pushNamed(context, Constants.routeReading);
+                      },
+                      child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Image.network(
-                      'https://www.nytimes.com/images/2023/07/09/arts/09Byrd-Anniversary-illo/09Byrd-Anniversary-illo-blog427.jpg',
-                      // Replace with your own image path
-                      width: double.infinity,
-                      height: 200,
-                      fit: BoxFit.fitWidth, // Adjusts the image within the card
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        testText,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      Image.network(
+                        'https://www.nytimes.com/images/2023/07/09/arts/09Byrd-Anniversary-illo/09Byrd-Anniversary-illo-blog427.jpg',
+                        // Replace with your own image path
+                        width: double.infinity,
+                        height: 200,
+                        fit: BoxFit.fitWidth, // Adjusts the image within the card
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        testText,
-                        maxLines: 4,
-                        overflow: TextOverflow.ellipsis,
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          testText,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
                       ),
-                    ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          testText,
+                          maxLines: 4,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
                   ],
-                )),
+                ),
+                    )),
               );
             }),
       );
