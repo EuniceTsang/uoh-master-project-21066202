@@ -4,6 +4,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:source_code/screen/base_navigation_screen.dart';
 import 'package:source_code/screen/dictionary_screen.dart';
+import 'package:source_code/screen/forum_thread_screen.dart';
 import 'package:source_code/screen/history_screen.dart';
 import 'package:source_code/screen/launch_screen.dart';
 import 'package:source_code/screen/login_screen.dart';
@@ -42,6 +43,7 @@ class MyApp extends StatelessWidget {
           Constants.routeHistory: (context) => const HistoryScreen(),
           Constants.routeDictionary: (context) => const DictionaryScreen(),
           Constants.routeReading: (context) => const ReadingScreen(),
+          Constants.routeForumThread: (context) => const ForumThreadScreen(),
         });
   }
 }

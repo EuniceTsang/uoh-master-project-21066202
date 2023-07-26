@@ -305,7 +305,7 @@ class _HomeScreenView extends StatelessWidget {
                 ),
                 TextButton(
                   onPressed: () {
-                    Navigator.pushNamed(context, Constants.routeReading);
+                    //TODO: change to reading tab
                   },
                   child: Row(
                     children: [
@@ -329,19 +329,24 @@ class _HomeScreenView extends StatelessWidget {
             ),
           ),
           Card(
-              child: Padding(
+              child: InkWell(
+                onTap: (){
+                  Navigator.pushNamed(context, Constants.routeReading);
+                },
+                child: Padding(
             padding: const EdgeInsets.all(5.0),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start, // Align children to the left
-              children: [
-                Text(
-                  testText.substring(0, 20),
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                ),
-                Text(testText),
-              ],
+                crossAxisAlignment: CrossAxisAlignment.start, // Align children to the left
+                children: [
+                  Text(
+                    testText.substring(0, 20),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                  ),
+                  Text(testText),
+                ],
             ),
-          ))
+          ),
+              ))
         ],
       ),
     );
@@ -365,7 +370,7 @@ class _HomeScreenView extends StatelessWidget {
                 ),
                 TextButton(
                   onPressed: () {
-                    // Add your button's onPressed action here
+                    //TODO: change to reading tab
                   },
                   child: Row(
                     children: [
@@ -430,7 +435,9 @@ class _HomeScreenView extends StatelessWidget {
                     ],
                   ),
                 ),
-                onTap: () {},
+                onTap: () {
+                  Navigator.pushNamed(context, Constants.routeForumThread);
+                },
               );
             },
           ))

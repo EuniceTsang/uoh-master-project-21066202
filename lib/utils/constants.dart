@@ -8,4 +8,5 @@ class Constants {
   static const routeHistory = '/history';
   static const routeDictionary = '/dictionary';
   static const routeReading = '/reading';
+  static const routeForumThread = '/forum-thread';
 }
