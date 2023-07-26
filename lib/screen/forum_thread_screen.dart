@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:source_code/blob/forum_thread_cubit.dart';
 
 class ForumThreadScreen extends StatelessWidget {

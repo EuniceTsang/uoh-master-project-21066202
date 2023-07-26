@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:source_code/blob/base_navigation_cubit.dart';
 import 'package:source_code/blob/home_cubit.dart';
 import 'package:source_code/utils/constants.dart';
 import 'package:source_code/utils/preference.dart';
@@ -93,7 +94,7 @@ class _HomeScreenView extends StatelessWidget {
   Widget _buildProfileBlock(BuildContext context) {
     return Card(
         child: Padding(
-      padding: const EdgeInsets.all(5.0),
+      padding: const EdgeInsets.all(10),
       child: Container(
         width: double.infinity, // Set width to take full width
         child: Column(
@@ -190,7 +191,7 @@ class _HomeScreenView extends StatelessWidget {
           ),
           Card(
               child: Padding(
-            padding: const EdgeInsets.all(5.0),
+            padding: const EdgeInsets.all(10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start, // Align children to the left
               children: [
@@ -305,7 +306,8 @@ class _HomeScreenView extends StatelessWidget {
                 ),
                 TextButton(
                   onPressed: () {
-                    //TODO: change to reading tab
+                    final baseNavigateCubit = BlocProvider.of<BaseNavigationCubit>(context);
+                    baseNavigateCubit.changeTab(2);
                   },
                   child: Row(
                     children: [
@@ -334,7 +336,7 @@ class _HomeScreenView extends StatelessWidget {
                   Navigator.pushNamed(context, Constants.routeReading);
                 },
                 child: Padding(
-            padding: const EdgeInsets.all(5.0),
+            padding: const EdgeInsets.all(10.0),
             child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start, // Align children to the left
                 children: [
@@ -342,6 +344,7 @@ class _HomeScreenView extends StatelessWidget {
                     testText.substring(0, 20),
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                   ),
+                  SizedBox(height: 5,),
                   Text(testText),
                 ],
             ),
@@ -370,7 +373,8 @@ class _HomeScreenView extends StatelessWidget {
                 ),
                 TextButton(
                   onPressed: () {
-                    //TODO: change to reading tab
+                    final baseNavigateCubit = BlocProvider.of<BaseNavigationCubit>(context);
+                    baseNavigateCubit.changeTab(3);
                   },
                   child: Row(
                     children: [
