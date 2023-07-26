@@ -276,7 +276,9 @@ class _HomeScreenView extends StatelessWidget {
                         Icons.arrow_forward_ios_rounded,
                         size: 15,
                       ),
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.pushNamed(context, Constants.routeDictionary, arguments: testHistoryWords[index]);
+                      },
                     );
                   },
                   separatorBuilder: (BuildContext context, int index) => Divider(
