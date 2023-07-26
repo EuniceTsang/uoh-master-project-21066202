@@ -22,86 +22,94 @@ class _TranslationScreenView extends StatelessWidget {
       TranslationCubit cubit = context.read<TranslationCubit>();
       TranslationState state = cubit.state;
       return Scaffold(
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(
           title: Text('Translation'),
         ),
-        body: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        body: SafeArea(
+          child: SingleChildScrollView(
+            child: Container(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Expanded(
-                    flex: 1,
-                    child: TextButton(
-                      onPressed: () => _showLanguageDialog(context),
-                      child: Text(
-                        state.language ?? 'Detect Language',
-                        style: TextStyle(color: Colors.black, fontSize: 15),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Expanded(
+                        flex: 1,
+                        child: TextButton(
+                          onPressed: () => _showLanguageDialog(context),
+                          child: Text(
+                            state.language ?? 'Detect Language',
+                            style: TextStyle(color: Colors.black, fontSize: 15),
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                  Icon(
-                    Icons.sync_alt_sharp,
-                    size: 30,
-                  ),
-                  Expanded(
-                    flex: 1,
-                    child: TextButton(
-                      onPressed: null,
-                      child: Text(
-                        'English',
-                        style: TextStyle(color: Colors.black, fontSize: 15),
+                      Icon(
+                        Icons.sync_alt_sharp,
+                        size: 30,
                       ),
-                    ),
+                      Expanded(
+                        flex: 1,
+                        child: TextButton(
+                          onPressed: null,
+                          child: Text(
+                            'English',
+                            style: TextStyle(color: Colors.black, fontSize: 15),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 16.0),
+                        child: TextField(
+                          maxLines: 10, // Allow multi-line input
+                          onChanged: (value) => cubit.updateInputText(value),
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(),
+                            hintText: 'Type text to translate...',
+                          ),
+                        ),
+                      ),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.black, minimumSize: Size(200, 40)),
+                        onPressed: () {
+                          FocusScope.of(context).unfocus();
+                          cubit.performTranslate();
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: Text(
+                            'Translate',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 16.0),
+                        child: TextField(
+                          readOnly: true,
+                          controller: TextEditingController(text: state.translatedText),
+                          maxLines: 10, // Allow multi-line input
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(),
+                            hintText: 'Translation result...',
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 16.0),
-                      child: TextField(
-                        maxLines: 10, // Allow multi-line input
-                        onChanged: (value) => cubit.updateInputText(value),
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          hintText: 'Type text to translate...',
-                        ),
-                      ),
-                    ),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.black, minimumSize: Size(200, 40)),
-                      onPressed: () => cubit.performTranslate(),
-                      child: Padding(
-                        padding: const EdgeInsets.all(10),
-                        child: Text(
-                          'Translate',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 16.0),
-                      child: TextField(
-                        readOnly: true,
-                        controller: TextEditingController(text: state.translatedText),
-                        maxLines: 10, // Allow multi-line input
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          hintText: 'Translation result...',
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       );

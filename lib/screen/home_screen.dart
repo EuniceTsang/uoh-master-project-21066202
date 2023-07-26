@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:source_code/blob/home_cubit.dart';
+import 'package:source_code/utils/constants.dart';
 import 'package:source_code/utils/preference.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -33,7 +34,7 @@ class _HomeScreenView extends StatelessWidget {
             child: Column(
               children: [
                 _buildProfileBlock(),
-                _buildWordOfTheDayBlock(),
+                _buildWordOfTheDayBlock(context),
                 _buildHistoryBlock(),
                 _buildRecommendReadingBlock(),
                 _buildLatestTopicBlock()
@@ -54,7 +55,8 @@ class _HomeScreenView extends StatelessWidget {
           cubit.searchingWord(value);
         },
         onSubmitted: (value) {
-          cubit.performSearch();
+          cubit.clearSearching();
+          Navigator.pushNamed(context, Constants.routeDictionary, arguments: value);
         },
         focusNode: _searchFocusNode,
         autofocus: false,
@@ -142,7 +144,7 @@ class _HomeScreenView extends StatelessWidget {
     ));
   }
 
-  Widget _buildWordOfTheDayBlock() {
+  Widget _buildWordOfTheDayBlock(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0),
       child: Column(
@@ -160,7 +162,7 @@ class _HomeScreenView extends StatelessWidget {
                 ),
                 TextButton(
                   onPressed: () {
-                    // Add your button's onPressed action here
+                    Navigator.pushNamed(context, Constants.routeDictionary, arguments: "loquacious");
                   },
                   child: Row(
                     children: [
