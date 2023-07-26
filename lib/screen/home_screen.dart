@@ -132,7 +132,7 @@ class _HomeScreenView extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 5),
               child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.yellow),
+                  style: ElevatedButton.styleFrom(backgroundColor: Color(0xffFFDF8B)),
                   onPressed: () {},
                   child: Text("Check my tasks")),
             )
@@ -255,7 +255,8 @@ class _HomeScreenView extends StatelessWidget {
           ),
           Card(
               child: ListView.separated(
-                  physics: NeverScrollableScrollPhysics(), // Disable scrolling
+                  physics: NeverScrollableScrollPhysics(),
+                  // Disable scrolling
                   shrinkWrap: true,
                   itemCount: testHistoryWords.length,
                   itemBuilder: (BuildContext context, int index) {
@@ -384,50 +385,50 @@ class _HomeScreenView extends StatelessWidget {
           ),
           Card(
               child: ListView.separated(
-                physics: NeverScrollableScrollPhysics(), // Disable scrolling
-                itemCount: 3,
-                shrinkWrap: true,
-                separatorBuilder: (BuildContext context, int index) =>
-                    Divider(color: Colors.grey, height: 1),
-                itemBuilder: (BuildContext context, int index) {
-                  return ListTile(
-                    title: Text(testText.substring(0, 10),
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                    subtitle: Row(
-                      children: [Expanded(child: Text("by Eren")), Text("1m")],
-                    ),
-                    trailing:
-                    SizedBox(
-                      width: 50,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        crossAxisAlignment: CrossAxisAlignment.end,
+            physics: NeverScrollableScrollPhysics(),
+            // Disable scrolling
+            itemCount: 3,
+            shrinkWrap: true,
+            separatorBuilder: (BuildContext context, int index) =>
+                Divider(color: Colors.grey, height: 1),
+            itemBuilder: (BuildContext context, int index) {
+              return ListTile(
+                title:
+                    Text(testText.substring(0, 10), style: TextStyle(fontWeight: FontWeight.bold)),
+                subtitle: Row(
+                  children: [Expanded(child: Text("by Eren")), Text("1m")],
+                ),
+                trailing: SizedBox(
+                  width: 50,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Row(
                         children: [
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.comment_outlined,
-                                size: 20,
-                              ),
-                              Text("100")
-                            ],
+                          Icon(
+                            Icons.comment_outlined,
+                            size: 20,
                           ),
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.favorite_border_rounded,
-                                size: 20,
-                              ),
-                              Text("100")
-                            ],
-                          )
+                          Text("100")
                         ],
                       ),
-                    ),
-                    onTap: () {},
-                  );
-                },
-              ))
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.favorite_border_rounded,
+                            size: 20,
+                          ),
+                          Text("100")
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+                onTap: () {},
+              );
+            },
+          ))
         ],
       ),
     );
