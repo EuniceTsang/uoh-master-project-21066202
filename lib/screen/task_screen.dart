@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:source_code/blob/task_cubit.dart';
+import 'package:source_code/bloc/task_cubit.dart';
 
 class TaskScreen extends StatelessWidget {
   const TaskScreen({super.key});

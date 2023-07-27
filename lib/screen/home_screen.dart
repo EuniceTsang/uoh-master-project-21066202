@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:source_code/blob/base_navigation_cubit.dart';
-import 'package:source_code/blob/home_cubit.dart';
+import 'package:source_code/bloc/base_navigation_cubit.dart';
+import 'package:source_code/bloc/home_cubit.dart';
 import 'package:source_code/utils/constants.dart';
 import 'package:source_code/utils/preference.dart';
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:source_code/blob/forum_thread_cubit.dart';
+import 'package:source_code/bloc/forum_thread_cubit.dart';
 
 class ForumThreadScreen extends StatelessWidget {
   const ForumThreadScreen({super.key});

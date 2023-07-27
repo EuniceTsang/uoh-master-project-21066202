@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:source_code/blob/account_cubit.dart';
+import 'package:source_code/bloc/account_cubit.dart';
 import 'package:source_code/utils/preference.dart';
 
 class AccountScreen extends StatelessWidget {

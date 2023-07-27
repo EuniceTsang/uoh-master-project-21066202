@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:source_code/blob/dictionary_cubit.dart';
+import 'package:source_code/bloc/dictionary_cubit.dart';
 
 class DictionaryScreen extends StatelessWidget {
   const DictionaryScreen({super.key});

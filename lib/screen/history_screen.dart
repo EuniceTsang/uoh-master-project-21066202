@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:source_code/blob/history_cubit.dart';
+import 'package:source_code/bloc/history_cubit.dart';
 import 'package:source_code/utils/constants.dart';
 
 class HistoryScreen extends StatelessWidget {

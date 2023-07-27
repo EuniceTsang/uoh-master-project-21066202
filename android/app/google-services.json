@@ -1,0 +1,82 @@
+{
+  "project_info": {
+    "project_number": "529528003363",
+    "project_id": "uoh-master-project-21066202",
+    "storage_bucket": "uoh-master-project-21066202.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:529528003363:android:a6a1eb5498e18074ca0a96",
+        "android_client_info": {
+          "package_name": "com.example.masterproject"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "529528003363-esmj00pja654r5kdvuuqjvvt93hku65e.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB24pwl0rf8HCoBlXmfD3b5OeKaZgmBX04"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "529528003363-esmj00pja654r5kdvuuqjvvt93hku65e.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "529528003363-f7mnfb2mmrfkfe4552pi4g5irusl3n7r.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.sourceCode"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:529528003363:android:db198cda34d08bc2ca0a96",
+        "android_client_info": {
+          "package_name": "com.winglamtsang.masterproject"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "529528003363-esmj00pja654r5kdvuuqjvvt93hku65e.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB24pwl0rf8HCoBlXmfD3b5OeKaZgmBX04"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "529528003363-esmj00pja654r5kdvuuqjvvt93hku65e.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "529528003363-f7mnfb2mmrfkfe4552pi4g5irusl3n7r.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.sourceCode"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

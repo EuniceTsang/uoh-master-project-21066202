@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:source_code/blob/forum_list_cubit.dart';
+import 'package:source_code/bloc/forum_list_cubit.dart';
 import 'package:source_code/utils/constants.dart';
 
 class ForumListScreen extends StatelessWidget {

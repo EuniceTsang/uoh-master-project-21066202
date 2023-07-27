@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:source_code/blob/translation_cubit.dart';
+import 'package:source_code/bloc/translation_cubit.dart';
 
 class TranslationScreen extends StatelessWidget {
   const TranslationScreen({super.key});
