@@ -25,7 +25,7 @@ class _ForumThreadScreenView extends StatelessWidget {
         appBar: AppBar(title: Text("Forum")),
         floatingActionButton: FloatingActionButton.extended(
             onPressed: () {
-              _showCommentDialog(context);
+              _showAddCommentBottomSheet(context);
             },
             label: Text("Add a comment")),
         body: SingleChildScrollView(
@@ -130,60 +130,84 @@ class _ForumThreadScreenView extends StatelessWidget {
     if (difference.inSeconds < 60) {
       return 'now';
     } else if (difference.inMinutes < 60) {
-      return '${difference.inMinutes} m';
+      return '${difference.inMinutes}m';
     } else if (difference.inHours < 24) {
-      return '${difference.inHours} h';
+      return '${difference.inHours}h';
     } else {
-      return '${difference.inDays} d';
+      return '${difference.inDays}d';
     }
   }
 
-  void _showCommentDialog(BuildContext context) {
+  void _showAddCommentBottomSheet(BuildContext context) {
     ForumThreadCubit cubit = context.read<ForumThreadCubit>();
     ForumThreadState state = cubit.state;
     TextEditingController commentController = TextEditingController();
     final _formKey = GlobalKey<FormState>();
-    showDialog(
+    showModalBottomSheet(
+      isScrollControlled: true, // Set to true to make the content scrollable
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: Text('Add a Comment'),
-          content: Form(
-            key: _formKey,
-            child: TextFormField(
-              controller: commentController,
-              validator: (value) {
-                if (value!.isEmpty) {
-                  return 'Please enter some text';
-                }
-                return null;
-              },
-              maxLines: 10, // Allow multi-line input
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: 'Enter your comment here',
-              ),
+        return Padding(
+          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+          child: IntrinsicHeight(
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Text(
+                        'Cancel',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ),
+                    Spacer(),
+                    Text(
+                      'Add a Comment',
+                      style: TextStyle(fontSize: 15),
+                    ),
+                    Spacer(),
+                    TextButton(
+                      onPressed: () {
+                        String newComment = commentController.text;
+                        if (_formKey.currentState!.validate()) {
+                          cubit.addComment(newComment);
+                          Navigator.of(context).pop();
+                        }
+                      },
+                      child: Text(
+                        'Save',
+                        style: TextStyle(color: Colors.blue),
+                      ),
+                    ),
+                  ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Form(
+                    key: _formKey,
+                    child: TextFormField(
+                      autofocus: true,
+                      controller: commentController,
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Please enter some text';
+                        }
+                        return null;
+                      },
+                      maxLines: 10, // Allow multi-line input
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        hintText: 'Enter your comment here',
+                      ),
+                    ),
+                  ),
+                )
+              ],
             ),
           ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                String newComment = commentController.text;
-                if (_formKey.currentState!.validate()) {
-                  print(newComment);
-                  cubit.addComment(newComment);
-                  Navigator.of(context).pop();
-                }
-              },
-              child: Text('Save'),
-            ),
-          ],
         );
       },
     );
