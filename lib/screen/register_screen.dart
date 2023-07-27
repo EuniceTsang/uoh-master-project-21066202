@@ -32,6 +32,29 @@ class RegisterScreen extends StatelessWidget {
                 SizedBox(height: 40.0),
                 CupertinoTextField(
                   style: TextStyle(color: Colors.black),
+                  textAlign: TextAlign.left,
+                  // controller: controller.emailEditingController,
+                  placeholder: 'Email',
+                  placeholderStyle: TextStyle(
+                    fontWeight: FontWeight.w400,
+                    color: Colors.grey,
+                  ),
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: BoxDecoration(
+                    color: CupertinoDynamicColor.withBrightness(
+                      color: CupertinoColors.white,
+                      darkColor: CupertinoColors.black,
+                    ),
+                    border: Border.all(
+                      color: Colors.black, // Set the border color here
+                      width: 2, // Set the border width
+                    ),
+                  ),
+                  onChanged: (value) => cubit.emailChanged(value),
+                ),
+                SizedBox(height: 16.0),
+                CupertinoTextField(
+                  style: TextStyle(color: Colors.black),
                   keyboardType: TextInputType.text,
                   textAlign: TextAlign.left,
                   // controller: controller.emailEditingController,

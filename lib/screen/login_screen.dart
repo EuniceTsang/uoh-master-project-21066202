@@ -32,9 +32,9 @@ class LoginScreen extends StatelessWidget {
                 SizedBox(height: 40.0),
                 CupertinoTextField(
                   style: TextStyle(color: Colors.black),
-                  keyboardType: TextInputType.text,
+                  keyboardType: TextInputType.emailAddress,
                   textAlign: TextAlign.left,
-                  placeholder: 'Username',
+                  placeholder: 'Email',
                   placeholderStyle: TextStyle(
                     fontWeight: FontWeight.w400,
                     color: Colors.grey,
@@ -49,7 +49,7 @@ class LoginScreen extends StatelessWidget {
                       width: 2, // Set the border width
                     ),
                   ),
-                  onChanged: (value) => cubit.usernameChanged(value),
+                  onChanged: (value) => cubit.emailChanged(value),
                 ),
                 SizedBox(height: 16.0),
                 CupertinoTextField(

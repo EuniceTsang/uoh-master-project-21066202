@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -29,6 +30,14 @@ class AccountScreen extends StatelessWidget {
             ListTile(
               title: Text("Username"),
               trailing: Text(Preferences().username),
+            ),
+            Divider(
+              height: 1,
+              color: Colors.grey,
+            ),
+            ListTile(
+              title: Text("Email"),
+              trailing: Text(FirebaseAuth.instance.currentUser?.email ?? ''),
             ),
             Divider(
               height: 1,
@@ -125,8 +134,7 @@ void _showTargetReadingBottomSheet(BuildContext context) {
             ),
             Expanded(
               child: CupertinoPicker(
-                scrollController:
-                FixedExtentScrollController(initialItem: _selectedReading - 1),
+                scrollController: FixedExtentScrollController(initialItem: _selectedReading - 1),
                 itemExtent: 40,
                 onSelectedItemChanged: (index) {
                   _selectedReading = index + 1;
@@ -181,17 +189,16 @@ void _showTargetTimeBottomSheet(BuildContext context) {
             ),
             Expanded(
                 child: CupertinoDatePicker(
-                  mode: CupertinoDatePickerMode.time,
-                  minuteInterval: 1,
-                  use24hFormat: true,
-                  initialDateTime: parseTimeString(_selectedTime),
-                  onDateTimeChanged: (DateTime newTime) {
-                    String formattedHour = newTime.hour.toString().padLeft(2, '0');
-                    String formattedMinute = newTime.minute.toString().padLeft(2, '0');
-                    _selectedTime = '$formattedHour:$formattedMinute';
-                  },
-                )
-            ),
+              mode: CupertinoDatePickerMode.time,
+              minuteInterval: 1,
+              use24hFormat: true,
+              initialDateTime: parseTimeString(_selectedTime),
+              onDateTimeChanged: (DateTime newTime) {
+                String formattedHour = newTime.hour.toString().padLeft(2, '0');
+                String formattedMinute = newTime.minute.toString().padLeft(2, '0');
+                _selectedTime = '$formattedHour:$formattedMinute';
+              },
+            )),
           ],
         ),
       );

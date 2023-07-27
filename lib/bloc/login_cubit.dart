@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:source_code/service/firebase_manager.dart';
 import 'package:source_code/utils/constants.dart';
 import 'package:source_code/utils/preference.dart';
 
@@ -8,12 +9,17 @@ class LoginCubit extends Cubit<LoginState> {
   LoginCubit() : super(const LoginState());
 
   Future<void> login(BuildContext context) async {
-    if (state.username.isEmpty || state.password.isEmpty) {
-      emit(state.copyWith(errorMessage: "Username and password cannot be empty"));
+    if (state.email.isEmpty || state.password.isEmpty) {
+      emit(state.copyWith(errorMessage: "Email and password cannot be empty"));
       return;
     }
-    await Preferences().savePrefForLoggedIn(state.username, state.password);
-    Navigator.pushReplacementNamed(context, Constants.routeBaseNavigation);
+    final firebaseManager = context.read<FirebaseManager>();
+    try {
+      await firebaseManager.userLogin(state.email, state.password);
+      Navigator.pushReplacementNamed(context, Constants.routeBaseNavigation);
+    } on FirebaseException catch (e) {
+      emit(state.copyWith(errorMessage: e.message));
+    }
   }
 
   void passwordChanged(String value) {
@@ -24,7 +30,7 @@ class LoginCubit extends Cubit<LoginState> {
     );
   }
 
-  void usernameChanged(String value) {
+  void emailChanged(String value) {
     emit(
       state.copyWith(
         username: value,
@@ -34,11 +40,11 @@ class LoginCubit extends Cubit<LoginState> {
 }
 
 class LoginState {
-  final String username;
+  final String email;
   final String password;
   final String? errorMessage;
 
-  const LoginState({this.username = "", this.password = "", this.errorMessage = ""});
+  const LoginState({this.email = "", this.password = "", this.errorMessage = ""});
 
   LoginState copyWith({
     String? username,
@@ -46,7 +52,7 @@ class LoginState {
     String? errorMessage,
   }) {
     return LoginState(
-      username: username ?? this.username,
+      email: username ?? this.email,
       password: password ?? this.password,
       errorMessage: errorMessage ?? this.errorMessage,
     );

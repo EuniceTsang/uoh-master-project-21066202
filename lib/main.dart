@@ -13,7 +13,7 @@ import 'package:source_code/screen/reading_screen.dart';
 import 'package:source_code/screen/register_screen.dart';
 import 'package:source_code/screen/task_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:source_code/service/database_manager.dart';
+import 'package:source_code/service/firebase_manager.dart';
 import 'service/firebase_options.dart';
 import 'utils/constants.dart';
 
@@ -35,7 +35,7 @@ class MyApp extends StatelessWidget {
     return MultiRepositoryProvider(
       providers: [
         RepositoryProvider.value(
-          value: DatabaseManager(),
+          value: FirebaseManager(),
         ),
       ],
       child: MaterialApp(

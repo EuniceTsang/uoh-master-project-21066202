@@ -1,10 +1,9 @@
 import 'dart:core';
-
 import 'package:get_storage/get_storage.dart';
 
 class Preferences {
   static const String USERNAME_KEY = 'username';
-  static const String PASSWORD_KEY = 'password';
+  static const String UID_KEY = 'uid';
 
   static final Preferences _sharedInstance = Preferences._internal();
 
@@ -23,7 +22,7 @@ class Preferences {
     return _storage!;
   }
 
-  bool get isLoggedIn => !(username == '' || password == '');
+  bool get isLoggedIn => !(username == '' || uid == '');
 
   Future<void> setUsername(String username) {
     return _getStorage().write(USERNAME_KEY, username);
@@ -31,15 +30,15 @@ class Preferences {
 
   String get username => _getStorage().read(USERNAME_KEY) ?? '';
 
-  Future<void> setPassword(String password) {
-    return _getStorage().write(PASSWORD_KEY, password);
+  Future<void> setUid(String password) {
+    return _getStorage().write(UID_KEY, password);
   }
 
-  String get password => _getStorage().read(PASSWORD_KEY) ?? '';
+  String get uid => _getStorage().read(UID_KEY) ?? '';
 
-  Future<void> savePrefForLoggedIn(String username, String password) async {
+  Future<void> savePrefForLoggedIn(String username, String uid) async {
     await setUsername(username);
-    await setPassword(password);
+    await setUid(uid);
   }
 
   Future<void> clearPrefForLoggedOut() async {

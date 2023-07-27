@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_storage/get_storage.dart';
+import 'package:source_code/service/firebase_manager.dart';
 import 'package:source_code/utils/constants.dart';
 import 'package:source_code/utils/preference.dart';
 
@@ -8,8 +8,14 @@ class AccountCubit extends Cubit<AccountState> {
   AccountCubit() : super(const AccountState());
 
   Future<void> logout(BuildContext context) async {
-    await Preferences().clearPrefForLoggedOut();
-    Navigator.pushReplacementNamed(context, Constants.routeLogin);
+    final firebaseManager = context.read<FirebaseManager>();
+    try {
+      await firebaseManager.logout();
+      await Preferences().clearPrefForLoggedOut();
+      Navigator.pushReplacementNamed(context, Constants.routeLogin);
+    } on FirebaseException catch (e) {
+      print(e.message);
+    }
   }
 
   void clearTargetReading() {
