@@ -20,7 +20,7 @@ class FirebaseManager {
     QuerySnapshot querySnapshot =
         await db.collection(UserFields.collection).where(UserFields.email, isEqualTo: email).get();
     if (querySnapshot.docs.isNotEmpty) {
-      throw (FirebaseException("Username already taken"));
+      throw (CustomException("Username already taken"));
     }
 
     try {
@@ -37,7 +37,7 @@ class FirebaseManager {
       print('User added with ID: ${doc.id}');
     } catch (e) {
       print("Register failed: $e");
-      throw (FirebaseException("Register failed: $e"));
+      throw (CustomException("Register failed: $e"));
     }
   }
 
@@ -67,10 +67,10 @@ class FirebaseManager {
       }
     } on FirebaseAuthException catch (e) {
       print(e.message);
-      throw (FirebaseException('Incorrect username or password'));
+      throw (CustomException('Incorrect username or password'));
     } catch (e) {
       print(e);
-      throw (FirebaseException(e.toString()));
+      throw (CustomException(e.toString()));
     }
   }
 
@@ -88,7 +88,7 @@ class FirebaseManager {
       }
     } catch (e) {
       print(e);
-      throw (FirebaseException(e.toString()));
+      throw (CustomException(e.toString()));
     }
   }
 
@@ -115,7 +115,7 @@ class FirebaseManager {
       // DocumentReference userRef = db.collection(UserFields.collection).doc(uid);
     } catch (e) {
       print(e);
-      throw (FirebaseException(e.toString()));
+      throw (CustomException(e.toString()));
     }
   }
 
@@ -142,7 +142,7 @@ class FirebaseManager {
       // DocumentReference userRef = db.collection(UserFields.collection).doc(uid);
     } catch (e) {
       print(e);
-      throw (FirebaseException(e.toString()));
+      throw (CustomException(e.toString()));
     }
   }
 
@@ -154,13 +154,13 @@ class FirebaseManager {
       // Navigator.pushReplacementNamed(context, '/login');
     } catch (e) {
       print('Error logging out: $e');
-      throw (FirebaseException(e.toString()));
+      throw (CustomException(e.toString()));
     }
   }
 }
 
-class FirebaseException implements Exception {
+class CustomException implements Exception {
   final String? message;
 
-  FirebaseException(this.message);
+  CustomException(this.message);
 }

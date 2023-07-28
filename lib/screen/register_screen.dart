@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:source_code/bloc/Register_cubit.dart';
-import 'package:source_code/utils/constants.dart';
 
 class RegisterScreen extends StatelessWidget {
   const RegisterScreen({super.key});

@@ -6,6 +6,7 @@ class Repository {
 
   void updateUser(QueryDocumentSnapshot snapshot) {
     Map<String, dynamic> map = snapshot.data() as Map<String, dynamic>;
+    print(map);
     user = User.fromJson(map);
   }
 

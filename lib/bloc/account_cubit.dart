@@ -18,6 +18,7 @@ class AccountCubit extends Cubit<AccountState> {
 
   void loadUserData() {
     User? user = repository.user;
+    print(user?.targetTime ?? 'no');
     emit(state.copyWith(targetTime: user?.targetTime, targetReading: user?.targetReading));
   }
 
@@ -27,7 +28,7 @@ class AccountCubit extends Cubit<AccountState> {
       await Preferences().clearPrefForLoggedOut();
       repository.reset();
       Navigator.pushReplacementNamed(context, Constants.routeLogin);
-    } on FirebaseException catch (e) {
+    } on CustomException catch (e) {
       print(e.message);
     }
   }
@@ -37,7 +38,7 @@ class AccountCubit extends Cubit<AccountState> {
       await firebaseManager.updateTargetReading(null);
       repository.user!.targetReading = null;
       loadUserData();
-    } on FirebaseException catch (e) {
+    } on CustomException catch (e) {
       print(e.message);
     }
   }
@@ -47,7 +48,7 @@ class AccountCubit extends Cubit<AccountState> {
       await firebaseManager.updateTargetReadingTime(null);
       repository.user!.targetTime = null;
       loadUserData();
-    } on FirebaseException catch (e) {
+    } on CustomException catch (e) {
       print(e.message);
     }
   }
@@ -57,7 +58,7 @@ class AccountCubit extends Cubit<AccountState> {
       await firebaseManager.updateTargetReading(value);
       repository.user!.targetReading = value;
       loadUserData();
-    } on FirebaseException catch (e) {
+    } on CustomException catch (e) {
       print(e.message);
     }
   }
@@ -67,7 +68,7 @@ class AccountCubit extends Cubit<AccountState> {
       await firebaseManager.updateTargetReadingTime(targetTime);
       repository.user!.targetTime = targetTime;
       loadUserData();
-    } on FirebaseException catch (e) {
+    } on CustomException catch (e) {
       print(e.message);
     }
   }

@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:source_code/service/firebase_manager.dart';
 
 class RegisterCubit extends Cubit<RegisterState> {
   RegisterCubit() : super(const RegisterState());
 
   Future<void> register(BuildContext context) async {
-    final RegExp _emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$'); // Regular expression to validate email format
-    if (state.username.isEmpty || state.password.isEmpty || state.email.isEmpty || state.confirmPassword.isEmpty) {
+    final RegExp _emailRegex =
+        RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$'); // Regular expression to validate email format
+    if (state.username.isEmpty ||
+        state.password.isEmpty ||
+        state.email.isEmpty ||
+        state.confirmPassword.isEmpty) {
       emit(state.copyWith(errorMessage: "Please fill in all field"));
       return;
     } else if (state.confirmPassword != state.password) {
@@ -18,10 +23,13 @@ class RegisterCubit extends Cubit<RegisterState> {
       return;
     }
     final firebaseManager = context.read<FirebaseManager>();
+    EasyLoading.show();
     try {
-      await firebaseManager.userRegister(state.email, state.username, state.password);
+      await firebaseManager.userRegister(state.email, state.email, state.password);
+      EasyLoading.dismiss();
       Navigator.of(context).pop();
-    } on FirebaseException catch (e) {
+    } on CustomException catch (e) {
+      EasyLoading.dismiss();
       emit(state.copyWith(errorMessage: e.message));
     }
   }
@@ -67,7 +75,11 @@ class RegisterState {
   final String? errorMessage;
 
   const RegisterState(
-      {this.email = "",this.username = "", this.password = "", this.confirmPassword = "", this.errorMessage = ""});
+      {this.email = "",
+      this.username = "",
+      this.password = "",
+      this.confirmPassword = "",
+      this.errorMessage = ""});
 
   RegisterState copyWith({
     String? email,
