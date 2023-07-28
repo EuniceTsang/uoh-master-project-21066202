@@ -13,6 +13,7 @@ import 'package:source_code/screen/reading_screen.dart';
 import 'package:source_code/screen/register_screen.dart';
 import 'package:source_code/screen/task_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:source_code/service/api_manager.dart';
 import 'package:source_code/service/firebase_manager.dart';
 import 'package:source_code/service/repository.dart';
 import 'service/firebase_options.dart';
@@ -41,12 +42,9 @@ class MyApp extends StatelessWidget {
         RepositoryProvider<Repository>(
           create: (_) => Repository(),
         ),
-        // RepositoryProvider.value(
-        //   value: FirebaseManager(),
-        // ),
-        // RepositoryProvider.value(
-        //   value: Repository(),
-        // ),
+        RepositoryProvider<ApiManager>(
+          create: (_) => ApiManager(),
+        ),
       ],
       child: MaterialApp(
           title: 'Master Project',

@@ -1,20 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:source_code/bloc/dictionary_cubit.dart';
+import 'package:source_code/models/word.dart';
 
 class DictionaryScreen extends StatelessWidget {
   const DictionaryScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final argument = ModalRoute
-        .of(context)!
-        .settings
-        .arguments;
+    final argument = ModalRoute.of(context)!.settings.arguments;
     String? word = argument != null && argument is String ? argument : null;
     return BlocProvider(
         create: (BuildContext context) {
-          return DictionaryCubit(word!);
+          return DictionaryCubit(context, word!);
         },
         child: _DictionaryScreenView());
   }
@@ -31,85 +29,51 @@ class _DictionaryScreenView extends StatelessWidget {
       DictionaryState state = cubit.state;
       if (state.searchingWord != null && _searchController.text != state.searchingWord) {
         _searchController.text = state.searchingWord;
-      }      return Scaffold(
+      }
+      return Scaffold(
         appBar: _buildAppBar(context),
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: state.wordData != null
-                ? Column(
-              crossAxisAlignment: CrossAxisAlignment.start, // Align children to the left
-              children: [
-                ListTile(
-                  title: Text(
-                    state.wordData!.word,
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-                  ),
-                  subtitle: Column(
-                    crossAxisAlignment:
-                    CrossAxisAlignment.start, // Align children to the left
-                    children: [
-                      Text(state.wordData!.pof),
-                      Text(state.wordData!.syllable),
-                    ],
-                  ),
-                  trailing: IconButton(
-                    icon: Icon(Icons.volume_up_rounded, size: 30,),
-                    onPressed: () {},
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start, // Align children to the left
-                    children: [
-                      SizedBox(height: 10,),
-                      Text(
-                        "Meanings",
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      ...List.generate(
-                          state.wordData!.meanings.length,
-                              (index) =>
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                // Align children to the left
-                                children: [
-                                  Text(
-                                    (index + 1).toString(),
-                                    style: TextStyle(fontWeight: FontWeight.bold),
-                                  ),
-                                  Text(state.wordData!.meanings[index]),
-                                ],
-                              )),
-                      SizedBox(height: 10,),
-                      Text(
-                        "Example",
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      ...List.generate(
-                          state.wordData!.meanings.length,
-                              (index) =>
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                // Align children to the left
-                                children: [
-                                  Text(
-                                    (index + 1).toString(),
-                                    style: TextStyle(fontWeight: FontWeight.bold),
-                                  ),
-                                  Text(state.wordData!.meanings[index]),
-                                ],
-                              )),
-
-                    ],),
-                )
-              ],
-            )
-                : Container(height: MediaQuery.of(context).size.height - 80,
-              child: Center(child: Text("Cannot find this word", style: TextStyle(color: Colors.grey, fontSize: 20),))),
-          ),
-        ),
+        body: state.isLoading
+            ? Container()
+            : Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: state.wordData != null
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ListTile(
+                          title: Text(
+                            state.wordData!.word,
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                          ),
+                          subtitle: Padding(
+                            padding: const EdgeInsets.only(top: 5),
+                            child: Text(state.wordData!.syllable),
+                          ),
+                          trailing: IconButton(
+                            icon: Icon(
+                              Icons.volume_up_rounded,
+                              size: 30,
+                            ),
+                            onPressed: state.wordData!.audioUrl == null ? null : () {
+                              cubit.playAudio();
+                            },
+                          ),
+                        ),
+                        Expanded(
+                          child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                              child: _buildDefinitionListView(context)),
+                        )
+                      ],
+                    )
+                  : Container(
+                      height: MediaQuery.of(context).size.height - 80,
+                      child: Center(
+                          child: Text(
+                        "Cannot find this word",
+                        style: TextStyle(color: Colors.grey, fontSize: 20),
+                      ))),
+            ),
       );
     });
   }
@@ -150,6 +114,69 @@ class _DictionaryScreenView extends StatelessWidget {
           },
         ),
       ],
+    );
+  }
+
+  Widget _buildDefinitionListView(BuildContext context) {
+    DictionaryCubit cubit = context.read<DictionaryCubit>();
+    DictionaryState state = cubit.state;
+    return ListView.separated(
+      itemCount: state.wordData!.posDefinitionMap.length,
+      itemBuilder: (context, index) {
+        String pos = state.wordData!.posDefinitionMap.keys.toList()[index];
+        List<Definition> definitions = state.wordData!.posDefinitionMap[pos]!;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start, // Align children to the left
+          children: [
+            Text(
+              pos,
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+            ),
+            Text(
+              "Meanings",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            ...List.generate(definitions.length, (index) {
+              Definition definitionObj = definitions[index];
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                // Align children to the left
+                children: [
+                  Text(
+                    (index + 1).toString(),
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  Text(definitionObj.definition),
+                  Text(
+                    "Example",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  ...List.generate(
+                      definitionObj.sentences.length,
+                      (index) => Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            // Align children to the left
+                            children: [
+                              Text(
+                                (index + 1).toString(),
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              Text(definitionObj.sentences[index]),
+                            ],
+                          )),
+                ],
+              );
+            }),
+            SizedBox(
+              height: 10,
+            ),
+          ],
+        );
+      },
+      separatorBuilder: (BuildContext context, int index) => Divider(
+        height: 1,
+        color: Colors.grey,
+      ),
     );
   }
 

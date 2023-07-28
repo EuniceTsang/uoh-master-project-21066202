@@ -1,18 +1,34 @@
+import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:source_code/models/word.dart';
+import 'package:source_code/service/api_manager.dart';
 
 class DictionaryCubit extends Cubit<DictionaryState> {
+  late final ApiManager apiManager;
+  AudioPlayer audioPlayer = AudioPlayer();
   String word;
   String testText =
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
 
-  DictionaryCubit(this.word) : super(DictionaryState(searchingWord: word, isSearching: true)) {
-    //load data
-    if (word == "x") {
-      return;
-    }
-    WordData wordData =
-        WordData(word, "pof", "syllable", [testText, testText], [testText, testText]);
-    emit(state.copyWith(wordData: wordData));
+  DictionaryCubit(BuildContext context, this.word)
+      : super(DictionaryState(searchingWord: word, isSearching: true, isLoading: true)) {
+    apiManager = context.read<ApiManager>();
+    performSearch();
+  }
+
+  void performSearch(){
+    EasyLoading.show();
+    emit(state.copyWith(isLoading: true));
+    apiManager.searchWord(state.searchingWord.toLowerCase()).then((wordData) {
+      EasyLoading.dismiss();
+      emit(state.copyWith(isLoading: false, wordData: wordData));
+    });
+  }
+
+  void playAudio(){
+    audioPlayer.play(UrlSource(state.wordData!.audioUrl!));
   }
 
   void clearSearching() {
@@ -22,32 +38,25 @@ class DictionaryCubit extends Cubit<DictionaryState> {
   void searchingWord(String word) {
     emit(state.copyWith(isSearching: word.isNotEmpty, searchingWord: word));
   }
-
-  void performSearch() {
-    WordData? wordData = state.wordData ??
-        WordData(
-            state.searchingWord, "pof", "syllable", [testText, testText], [testText, testText]);
-    wordData.word = state.searchingWord;
-    if (state.searchingWord == "x") {
-      wordData = null;
-    }
-    emit(state.copyWith(wordData: wordData));
-  }
 }
 
 class DictionaryState {
+  final bool isLoading;
   final bool isSearching;
   final String searchingWord;
-  final WordData? wordData;
+  final Word? wordData;
 
-  const DictionaryState({this.isSearching = false, this.searchingWord = '', this.wordData});
+  const DictionaryState(
+      {this.isLoading = false, this.isSearching = false, this.searchingWord = '', this.wordData});
 
   DictionaryState copyWith({
+    bool? isLoading,
     bool? isSearching,
     String? searchingWord,
-    WordData? wordData,
+    Word? wordData,
   }) {
     return DictionaryState(
+      isLoading: isLoading ?? this.isLoading,
       isSearching: isSearching ?? this.isSearching,
       searchingWord: searchingWord ?? this.searchingWord,
       wordData: wordData ?? this.wordData,
@@ -55,12 +64,3 @@ class DictionaryState {
   }
 }
 
-class WordData {
-  String word;
-  String pof;
-  String syllable;
-  List<String> meanings;
-  List<String> examples;
-
-  WordData(this.word, this.pof, this.syllable, this.meanings, this.examples);
-}

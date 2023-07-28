@@ -9,6 +9,11 @@ class Constants {
   static const routeDictionary = '/dictionary';
   static const routeReading = '/reading';
   static const routeForumThread = '/forum-thread';
+
+  static const dictionaryApiKey = '2f75820c-65b7-4a16-94b9-71bdbd814b96';
+  static const dictionaryUrl = 'https://www.dictionaryapi.com/api/v3/references/learners/json/may?key=2f75820c-65b7-4a16-94b9-71bdbd814b96';
+  static const dictionaryAudioUrl = 'https://media.merriam-webster.com/audio/prons/en/us/mp3/[subdirectory]/[base filename].mp3';
+
 }
 
 
