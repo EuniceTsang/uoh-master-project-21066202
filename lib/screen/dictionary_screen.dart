@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:source_code/bloc/dictionary_cubit.dart';
 import 'package:source_code/models/word.dart';
 
@@ -35,7 +36,7 @@ class _DictionaryScreenView extends StatelessWidget {
         body: state.isLoading
             ? Container()
             : Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                padding: const EdgeInsets.only(top: 8.0,left: 8.0,right: 8.0,),
                 child: state.wordData != null
                     ? Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -43,7 +44,7 @@ class _DictionaryScreenView extends StatelessWidget {
                           ListTile(
                             title: Text(
                               state.wordData!.word,
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
                             ),
                             subtitle: Padding(
                               padding: const EdgeInsets.only(top: 5),
@@ -137,11 +138,13 @@ class _DictionaryScreenView extends StatelessWidget {
                 style: TextStyle(
                     fontWeight: FontWeight.bold, fontSize: 20, fontStyle: FontStyle.italic),
               ),
-              Text(
-                "Meanings",
-                style: TextStyle(fontWeight: FontWeight.bold),
+              // Text(
+              //   "Meanings",
+              //   style: TextStyle(fontWeight: FontWeight.bold),
+              // ),
+              SizedBox(
+                height: 5,
               ),
-              SizedBox(height: 5,),
               ...List.generate(definitions.length, (index) {
                 Definition definitionObj = definitions[index];
                 return Column(
@@ -163,15 +166,13 @@ class _DictionaryScreenView extends StatelessWidget {
                         ),
                       ),
                     ),
-                    ...List.generate(
-                        definitionObj.sentences.length,
-                        (index) => Padding(
-                              padding: const EdgeInsets.only(left: 8.0, top: 2, bottom: 2),
-                              child: Text(
-                                (index + 1).toString() + ". " + definitionObj.sentences[index],
-                                softWrap: true,
-                              ),
-                            )),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8.0, top: 2, bottom: 2),
+                      child: Html(
+                        data:
+                            '<ul>${definitionObj.sentences.map((sentence) => '<li>$sentence</li>').join()}</ul>',
+                      ),
+                    )
                   ],
                 );
               }),

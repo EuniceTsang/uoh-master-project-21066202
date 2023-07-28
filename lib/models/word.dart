@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 class Word {
   String word;
   String syllable;
@@ -16,58 +18,66 @@ class Word {
     String? _audioUrl;
     Map<String, List<Definition>> _posDefinitionMap = {};
     json.forEach((wordJson) {
-      String? _pos;
-      String hw = wordJson['hwi']['hw']
-          .replaceAll(RegExp(r'[^a-zA-Z]'), ''); //remove all non-alphabetic characters
-      if (hw.toLowerCase() != word.toLowerCase()) {
-        return;
-      }
-      dynamic hwi = wordJson["hwi"];
-      Map prs;
-      if (hwi.containsKey("prs")) {
-        prs = hwi["prs"][0];
-      } else if (hwi.containsKey("altprs")) {
-        prs = hwi["altprs"][0];
-      } else {
-        return;
-      }
-      if (_syllable == null) {
-        _syllable = prs["ipa"];
-      }
-      if (prs.containsKey("sound") && _audioUrl == null) {
-        String audioFileName = prs["sound"]["audio"];
-        _audioUrl =
-            "https://media.merriam-webster.com/audio/prons/en/us/mp3/${getAudioSubdirectory(audioFileName)}/$audioFileName.mp3";
-      }
-      _pos = wordJson["fl"];
-      _posDefinitionMap[_pos!] = [];
-      List<dynamic> definitions = wordJson["def"][0]["sseq"];
-      definitions.forEach((definitionJson) {
-        List dt = definitionJson[0][1]["dt"];
-        String? _definition;
-        List<String> _sentences = [];
-        dt.forEach((element) {
-          if (_definition != null && _sentences.isNotEmpty) {
-            return;
-          }
-          if (element[0] == "text") {
-            _definition = element[1];
-          } else if (element[0] == "vis") {
-            List<dynamic> sentenceJsonList = element[1];
-            sentenceJsonList.forEach((sentenceJson) {
-              String sentence = sentenceJson["t"];
-              _sentences.add(sentence);
-            });
-          }
-        });
-        if (_definition == null) {
+      try {
+        String? _pos;
+        //remove all non-alphabetic characters
+        String hw = wordJson['hwi']['hw'].replaceAll(RegExp(r'[^a-zA-Z]'), '');
+        if (hw.toLowerCase() != word.toLowerCase()) {
           return;
         }
-        Definition definition = Definition(definition: _definition!, sentences: _sentences);
-        List<Definition> definitions = _posDefinitionMap[_pos!]!;
-        definitions.add(definition);
-        _posDefinitionMap[_pos] = definitions;
-      });
+        dynamic hwi = wordJson["hwi"];
+        Map prs;
+        if (hwi.containsKey("prs")) {
+          prs = hwi["prs"][0];
+        } else if (hwi.containsKey("altprs")) {
+          prs = hwi["altprs"][0];
+        } else {
+          return;
+        }
+        if (_syllable == null) {
+          _syllable = prs["ipa"];
+        }
+        if (prs.containsKey("sound") && _audioUrl == null) {
+          String audioFileName = prs["sound"]["audio"];
+          _audioUrl =
+              "https://media.merriam-webster.com/audio/prons/en/us/mp3/${getAudioSubdirectory(audioFileName)}/$audioFileName.mp3";
+        }
+        _pos = wordJson["fl"];
+        _posDefinitionMap[_pos!] = [];
+        List<dynamic> definitions = wordJson["def"][0]["sseq"];
+        definitions.forEach((definitionJson) {
+          List dt = definitionJson[0][1]["dt"];
+          String? _definition;
+          List<String> _sentences = [];
+          dt.forEach((element) {
+            if (_definition != null && _sentences.isNotEmpty) {
+              return;
+            }
+            if (element[0] == "text") {
+              //remove curly brackets and the content inside them
+              _definition = element[1].replaceAll(RegExp(r'\{.*?\}'), '');
+              _definition = toBeginningOfSentenceCase(_definition)!;
+            } else if (element[0] == "vis") {
+              List<dynamic> sentenceJsonList = element[1];
+              sentenceJsonList.forEach((sentenceJson) {
+                String sentence = sentenceJson["t"].replaceAll("{it}", "<i>").replaceAll("{/it}", "</i>");
+                //remove curly brackets and the content inside them
+                sentence = sentence.replaceAll(RegExp(r'\{.*?\}'), '');
+                _sentences.add(toBeginningOfSentenceCase(sentence)!);
+              });
+            }
+          });
+          if (_definition == null || _definition!.isEmpty) {
+            return;
+          }
+          Definition definition = Definition(definition: _definition!, sentences: _sentences);
+          List<Definition> definitions = _posDefinitionMap[_pos!]!;
+          definitions.add(definition);
+          _posDefinitionMap[_pos] = definitions;
+        });
+      } catch (e) {
+        return;
+      }
     });
     if (_posDefinitionMap.isNotEmpty && _syllable != null) {
       return Word(
@@ -95,7 +105,8 @@ class Word {
   @override
   String toString() {
     return 'Word: $word\nSyllable: $syllable\nAudio URL: $audioUrl\n'
-        'Parts of Speech Definitions: $posDefinitionMap';  }
+        'Definitions: $posDefinitionMap';
+  }
 }
 
 class Definition {
@@ -109,6 +120,6 @@ class Definition {
 
   @override
   String toString() {
-    return 'Definition: $definition\nSentences: $sentences';
+    return 'Definition: $definition\nSentences: $sentences\n';
   }
 }

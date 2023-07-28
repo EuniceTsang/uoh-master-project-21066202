@@ -57,6 +57,7 @@ class _HomeScreenView extends StatelessWidget {
         },
         onSubmitted: (value) {
           cubit.clearSearching();
+          _searchController.clear();
           Navigator.pushNamed(context, Constants.routeDictionary, arguments: value);
         },
         focusNode: _searchFocusNode,

@@ -47,6 +47,7 @@ dependencies:
   json_annotation: ^4.8.1
   dio: ^5.3.0
   audioplayers: ^4.1.0
+  flutter_html: ^2.1.2
 
 dev_dependencies:
   flutter_test:
