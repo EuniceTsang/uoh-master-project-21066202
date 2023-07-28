@@ -23,5 +23,5 @@ Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
       'target_reading': instance.targetReading,
       'target_time': instance.targetTime,
       'level': instance.level,
-      'last_level_update': instance.lastLevelUpdate.toIso8601String(),
+      'last_level_update': Utils.dateTimeToString(instance.lastLevelUpdate),
     };

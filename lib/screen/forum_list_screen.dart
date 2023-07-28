@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:source_code/bloc/forum_list_cubit.dart';
 import 'package:source_code/utils/constants.dart';
+import 'package:source_code/utils/utils.dart';
 
 class ForumListScreen extends StatelessWidget {
   const ForumListScreen({super.key});
@@ -71,7 +72,7 @@ class _ForumListScreenView extends StatelessWidget {
                 title:
                     Text(thread.title, style: TextStyle(fontWeight: FontWeight.bold)),
                 subtitle: Row(
-                  children: [Expanded(child: Text("by ${thread.author}")), Text(formatTimeDifference(thread.postTime))],
+                  children: [Expanded(child: Text("by ${thread.author}")), Text(Utils.formatTimeDifference(thread.postTime))],
                 ),
                 trailing: SizedBox(
                   width: 50,
@@ -107,19 +108,6 @@ class _ForumListScreenView extends StatelessWidget {
             ),
           );
         });
-  }
-
-  String formatTimeDifference(DateTime dateTime) {
-    Duration difference = DateTime.now().difference(dateTime);
-    if (difference.inSeconds < 60) {
-      return 'now';
-    } else if (difference.inMinutes < 60) {
-      return '${difference.inMinutes}m';
-    } else if (difference.inHours < 24) {
-      return '${difference.inHours}h';
-    } else {
-      return '${difference.inDays}d';
-    }
   }
 
   void _showCreateThreadBottomSheet(BuildContext context) {

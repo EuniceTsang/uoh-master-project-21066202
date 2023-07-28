@@ -1,4 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:source_code/utils/utils.dart';
+
 part 'user.g.dart';
 
 @JsonSerializable()
@@ -21,7 +23,8 @@ class User {
   @JsonKey(name: UserFields.level)
   int level;
 
-  @JsonKey(name: UserFields.last_level_update, fromJson: DateTime.parse)
+  @JsonKey(
+      name: UserFields.last_level_update, fromJson: DateTime.parse, toJson: Utils.dateTimeToString)
   DateTime lastLevelUpdate;
 
   User({

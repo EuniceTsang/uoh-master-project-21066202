@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:source_code/bloc/forum_thread_cubit.dart';
+import 'package:source_code/utils/utils.dart';
 
 class ForumThreadScreen extends StatelessWidget {
   const ForumThreadScreen({super.key});
@@ -62,7 +63,7 @@ class _ForumThreadScreenView extends StatelessWidget {
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
             ),
             subtitle: Text('by ${state.threadAuthor}'),
-            trailing: Text(formatTimeDifference(state.threadPostTime!)),
+            trailing: Text(Utils.formatTimeDifference(state.threadPostTime!)),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -100,7 +101,7 @@ class _ForumThreadScreenView extends StatelessWidget {
               comment.username,
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
             ),
-            trailing: Text(formatTimeDifference(comment.commentPostTime)),
+            trailing: Text(Utils.formatTimeDifference(comment.commentPostTime)),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -123,19 +124,6 @@ class _ForumThreadScreenView extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  String formatTimeDifference(DateTime dateTime) {
-    Duration difference = DateTime.now().difference(dateTime);
-    if (difference.inSeconds < 60) {
-      return 'now';
-    } else if (difference.inMinutes < 60) {
-      return '${difference.inMinutes}m';
-    } else if (difference.inHours < 24) {
-      return '${difference.inHours}h';
-    } else {
-      return '${difference.inDays}d';
-    }
   }
 
   void _showAddCommentBottomSheet(BuildContext context) {
