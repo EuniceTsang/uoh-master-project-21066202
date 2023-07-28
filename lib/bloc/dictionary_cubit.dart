@@ -9,8 +9,6 @@ class DictionaryCubit extends Cubit<DictionaryState> {
   late final ApiManager apiManager;
   AudioPlayer audioPlayer = AudioPlayer();
   String word;
-  String testText =
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
 
   DictionaryCubit(BuildContext context, this.word)
       : super(DictionaryState(searchingWord: word, isSearching: true, isLoading: true)) {

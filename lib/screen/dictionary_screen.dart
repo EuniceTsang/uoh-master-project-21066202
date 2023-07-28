@@ -35,45 +35,47 @@ class _DictionaryScreenView extends StatelessWidget {
         body: state.isLoading
             ? Container()
             : Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: state.wordData != null
-                  ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ListTile(
-                          title: Text(
-                            state.wordData!.word,
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-                          ),
-                          subtitle: Padding(
-                            padding: const EdgeInsets.only(top: 5),
-                            child: Text(state.wordData!.syllable),
-                          ),
-                          trailing: IconButton(
-                            icon: Icon(
-                              Icons.volume_up_rounded,
-                              size: 30,
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: state.wordData != null
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ListTile(
+                            title: Text(
+                              state.wordData!.word,
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                             ),
-                            onPressed: state.wordData!.audioUrl == null ? null : () {
-                              cubit.playAudio();
-                            },
+                            subtitle: Padding(
+                              padding: const EdgeInsets.only(top: 5),
+                              child: Text(state.wordData!.syllable),
+                            ),
+                            trailing: IconButton(
+                              icon: Icon(
+                                Icons.volume_up_rounded,
+                                size: 30,
+                              ),
+                              onPressed: state.wordData!.audioUrl == null
+                                  ? null
+                                  : () {
+                                      cubit.playAudio();
+                                    },
+                            ),
                           ),
-                        ),
-                        Expanded(
-                          child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                              child: _buildDefinitionListView(context)),
-                        )
-                      ],
-                    )
-                  : Container(
-                      height: MediaQuery.of(context).size.height - 80,
-                      child: Center(
-                          child: Text(
-                        "Cannot find this word",
-                        style: TextStyle(color: Colors.grey, fontSize: 20),
-                      ))),
-            ),
+                          Expanded(
+                            child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: _buildDefinitionListView(context)),
+                          )
+                        ],
+                      )
+                    : Container(
+                        height: MediaQuery.of(context).size.height - 80,
+                        child: Center(
+                            child: Text(
+                          "Cannot find this word",
+                          style: TextStyle(color: Colors.grey, fontSize: 20),
+                        ))),
+              ),
       );
     });
   }
@@ -125,52 +127,59 @@ class _DictionaryScreenView extends StatelessWidget {
       itemBuilder: (context, index) {
         String pos = state.wordData!.posDefinitionMap.keys.toList()[index];
         List<Definition> definitions = state.wordData!.posDefinitionMap[pos]!;
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start, // Align children to the left
-          children: [
-            Text(
-              pos,
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-            ),
-            Text(
-              "Meanings",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            ...List.generate(definitions.length, (index) {
-              Definition definitionObj = definitions[index];
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                // Align children to the left
-                children: [
-                  Text(
-                    (index + 1).toString(),
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  Text(definitionObj.definition),
-                  Text(
-                    "Example",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  ...List.generate(
-                      definitionObj.sentences.length,
-                      (index) => Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            // Align children to the left
-                            children: [
-                              Text(
-                                (index + 1).toString(),
-                                style: TextStyle(fontWeight: FontWeight.bold),
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start, // Align children to the left
+            children: [
+              Text(
+                pos,
+                style: TextStyle(
+                    fontWeight: FontWeight.bold, fontSize: 20, fontStyle: FontStyle.italic),
+              ),
+              Text(
+                "Meanings",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 5,),
+              ...List.generate(definitions.length, (index) {
+                Definition definitionObj = definitions[index];
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  // Align children to the left
+                  children: [
+                    Text(
+                      (index + 1).toString(),
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Text(definitionObj.definition),
+                    Visibility(
+                      visible: definitionObj.sentences.isNotEmpty,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 8.0, top: 5),
+                        child: Text(
+                          "Example",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                    ...List.generate(
+                        definitionObj.sentences.length,
+                        (index) => Padding(
+                              padding: const EdgeInsets.only(left: 8.0, top: 2, bottom: 2),
+                              child: Text(
+                                (index + 1).toString() + ". " + definitionObj.sentences[index],
+                                softWrap: true,
                               ),
-                              Text(definitionObj.sentences[index]),
-                            ],
-                          )),
-                ],
-              );
-            }),
-            SizedBox(
-              height: 10,
-            ),
-          ],
+                            )),
+                  ],
+                );
+              }),
+              SizedBox(
+                height: 10,
+              ),
+            ],
+          ),
         );
       },
       separatorBuilder: (BuildContext context, int index) => Divider(
@@ -179,7 +188,4 @@ class _DictionaryScreenView extends StatelessWidget {
       ),
     );
   }
-
-  String testText =
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
 }

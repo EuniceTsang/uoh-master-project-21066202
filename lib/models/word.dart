@@ -17,11 +17,20 @@ class Word {
     Map<String, List<Definition>> _posDefinitionMap = {};
     json.forEach((wordJson) {
       String? _pos;
-      String hw = wordJson['hwi']['hw'].replaceAll(RegExp(r'[^a-zA-Z]'), '');   //remove all non-alphabetic characters
+      String hw = wordJson['hwi']['hw']
+          .replaceAll(RegExp(r'[^a-zA-Z]'), ''); //remove all non-alphabetic characters
       if (hw.toLowerCase() != word.toLowerCase()) {
         return;
       }
-      Map prs = wordJson["hwi"]["prs"][0];
+      dynamic hwi = wordJson["hwi"];
+      Map prs;
+      if (hwi.containsKey("prs")) {
+        prs = hwi["prs"][0];
+      } else if (hwi.containsKey("altprs")) {
+        prs = hwi["altprs"][0];
+      } else {
+        return;
+      }
       if (_syllable == null) {
         _syllable = prs["ipa"];
       }
@@ -38,13 +47,12 @@ class Word {
         String? _definition;
         List<String> _sentences = [];
         dt.forEach((element) {
-          if(_definition != null && _sentences.isNotEmpty){
+          if (_definition != null && _sentences.isNotEmpty) {
             return;
           }
-          if(element[0] == "text"){
+          if (element[0] == "text") {
             _definition = element[1];
-          }
-          else if (element[0] == "vis"){
+          } else if (element[0] == "vis") {
             List<dynamic> sentenceJsonList = element[1];
             sentenceJsonList.forEach((sentenceJson) {
               String sentence = sentenceJson["t"];
@@ -52,6 +60,9 @@ class Word {
             });
           }
         });
+        if (_definition == null) {
+          return;
+        }
         Definition definition = Definition(definition: _definition!, sentences: _sentences);
         List<Definition> definitions = _posDefinitionMap[_pos!]!;
         definitions.add(definition);
@@ -80,6 +91,11 @@ class Word {
       return audioFileName.substring(0, 1);
     }
   }
+
+  @override
+  String toString() {
+    return 'Word: $word\nSyllable: $syllable\nAudio URL: $audioUrl\n'
+        'Parts of Speech Definitions: $posDefinitionMap';  }
 }
 
 class Definition {
@@ -90,4 +106,9 @@ class Definition {
     required this.definition,
     required this.sentences,
   });
+
+  @override
+  String toString() {
+    return 'Definition: $definition\nSentences: $sentences';
+  }
 }

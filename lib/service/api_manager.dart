@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:source_code/models/word.dart';
 
@@ -16,13 +18,17 @@ class ApiManager {
       final response = await dio.get(
           'https://www.dictionaryapi.com/api/v3/references/learners/json/$word?key=$dictionaryApiKey');
       if (response.statusCode == 200) {
-        Word? wordObj =  Word.fromJson(word, response.data);
+        Word? wordObj = Word.fromJson(word, response.data);
+        if (wordObj != null) {
+          print("searchWord: " + wordObj.toString());
+        }
         return wordObj;
       } else {
         print("${response.statusCode}, ${response.data}");
       }
-    } catch (e) {
-      print(e.toString());
+    } catch (e, stacktrace) {
+      print('searchWord Exception: ' + e.toString());
+      print('Stacktrace: ' + stacktrace.toString());
     }
     return null;
   }
