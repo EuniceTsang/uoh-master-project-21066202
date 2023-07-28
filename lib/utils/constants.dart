@@ -11,16 +11,7 @@ class Constants {
   static const routeForumThread = '/forum-thread';
 }
 
-class UserFields {
-  static const collection = 'user';
-  static const user_id = 'user_id';
-  static const email = 'email';
-  static const username = 'username';
-  static const target_reading = 'target_reading';
-  static const target_time = 'target_time';
-  static const level = 'level';
-  static const last_level_update = 'last_level_update';
-}
+
 
 class TaskFields {
   static const collection = 'task';

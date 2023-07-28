@@ -22,8 +22,6 @@ class Preferences {
     return _storage!;
   }
 
-  bool get isLoggedIn => !(username == '' || uid == '');
-
   Future<void> setUsername(String username) {
     return _getStorage().write(USERNAME_KEY, username);
   }

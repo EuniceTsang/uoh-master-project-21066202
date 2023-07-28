@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:source_code/bloc/account_cubit.dart';
+import 'package:source_code/service/repository.dart';
 import 'package:source_code/utils/preference.dart';
 
 class AccountScreen extends StatelessWidget {
@@ -12,10 +13,11 @@ class AccountScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(create: (BuildContext context) {
-      return AccountCubit();
+      return AccountCubit(context);
     }, child: BlocBuilder<AccountCubit, AccountState>(builder: (context, state) {
       AccountCubit cubit = context.read<AccountCubit>();
       AccountState state = cubit.state;
+
       return Scaffold(
         appBar: AppBar(title: Text("Account")),
         floatingActionButton: FloatingActionButton(

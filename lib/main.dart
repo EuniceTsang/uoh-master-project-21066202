@@ -14,6 +14,7 @@ import 'package:source_code/screen/register_screen.dart';
 import 'package:source_code/screen/task_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:source_code/service/firebase_manager.dart';
+import 'package:source_code/service/repository.dart';
 import 'service/firebase_options.dart';
 import 'utils/constants.dart';
 
@@ -34,9 +35,18 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiRepositoryProvider(
       providers: [
-        RepositoryProvider.value(
-          value: FirebaseManager(),
+        RepositoryProvider<FirebaseManager>(
+          create: (_) => FirebaseManager(),
         ),
+        RepositoryProvider<Repository>(
+          create: (_) => Repository(),
+        ),
+        // RepositoryProvider.value(
+        //   value: FirebaseManager(),
+        // ),
+        // RepositoryProvider.value(
+        //   value: Repository(),
+        // ),
       ],
       child: MaterialApp(
           title: 'Master Project',

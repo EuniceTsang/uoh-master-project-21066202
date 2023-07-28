@@ -1,8 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'dart:convert';
-import 'package:source_code/utils/constants.dart';
+import 'package:source_code/models/user.dart' hide User;
 import 'package:source_code/utils/preference.dart';
 
 class FirebaseManager {
@@ -14,16 +12,18 @@ class FirebaseManager {
     auth = FirebaseAuth.instance;
   }
 
-  Future<void> userRegister(String email, String username, String password) async {
-      QuerySnapshot querySnapshot = await db
-          .collection(UserFields.collection)
-          .where(UserFields.email, isEqualTo: email)
-          .get();
-      if (querySnapshot.docs.isNotEmpty) {
-        throw (FirebaseException("Username already taken"));
-      }
+  bool get isLoggedIn => FirebaseAuth.instance.currentUser != null;
 
-      try {
+  String get uid => auth.currentUser?.uid ?? Preferences().uid;
+
+  Future<void> userRegister(String email, String username, String password) async {
+    QuerySnapshot querySnapshot =
+        await db.collection(UserFields.collection).where(UserFields.email, isEqualTo: email).get();
+    if (querySnapshot.docs.isNotEmpty) {
+      throw (FirebaseException("Username already taken"));
+    }
+
+    try {
       String user_id = await createUser(email, password);
 
       final user = <String, dynamic>{
@@ -62,7 +62,7 @@ class FirebaseManager {
           .limit(1)
           .get();
       if (querySnapshot.docs.isNotEmpty) {
-        String username = querySnapshot.docs[0].get(UserFields.username);
+        String username = querySnapshot.docs.first.get(UserFields.username);
         Preferences().savePrefForLoggedIn(username, user!.uid);
       }
     } on FirebaseAuthException catch (e) {
@@ -74,7 +74,79 @@ class FirebaseManager {
     }
   }
 
-  Future<void> logout() async{
+  Future<QueryDocumentSnapshot> getUserData() async {
+    try {
+      QuerySnapshot querySnapshot = await db
+          .collection(UserFields.collection)
+          .where(UserFields.user_id, isEqualTo: uid)
+          .limit(1)
+          .get();
+      if (querySnapshot.docs.isNotEmpty) {
+        return querySnapshot.docs.first;
+      } else {
+        throw Exception("Cannot find user profile");
+      }
+    } catch (e) {
+      print(e);
+      throw (FirebaseException(e.toString()));
+    }
+  }
+
+  Future<void> updateTargetReading(int? value) async {
+    try {
+      // Get the reference to the user document using the UID
+      QuerySnapshot querySnapshot = await db
+          .collection(UserFields.collection)
+          .where(UserFields.user_id, isEqualTo: uid)
+          .limit(1)
+          .get();
+      if (querySnapshot.docs.isNotEmpty) {
+        DocumentReference userRef = querySnapshot.docs.first.reference;
+        await userRef.set(
+          {
+            UserFields.target_reading: value,
+          },
+          // This will update the specified field and create it if it doesn't exist
+          SetOptions(merge: true),
+        );
+      } else {
+        throw Exception("Cannot find user profile");
+      }
+      // DocumentReference userRef = db.collection(UserFields.collection).doc(uid);
+    } catch (e) {
+      print(e);
+      throw (FirebaseException(e.toString()));
+    }
+  }
+
+  Future<void> updateTargetReadingTime(String? time) async {
+    try {
+      // Get the reference to the user document using the UID
+      QuerySnapshot querySnapshot = await db
+          .collection(UserFields.collection)
+          .where(UserFields.user_id, isEqualTo: uid)
+          .limit(1)
+          .get();
+      if (querySnapshot.docs.isNotEmpty) {
+        DocumentReference userRef = querySnapshot.docs.first.reference;
+        await userRef.set(
+          {
+            UserFields.target_time: time,
+          },
+          // This will update the specified field and create it if it doesn't exist
+          SetOptions(merge: true),
+        );
+      } else {
+        throw Exception("Cannot find user profile");
+      }
+      // DocumentReference userRef = db.collection(UserFields.collection).doc(uid);
+    } catch (e) {
+      print(e);
+      throw (FirebaseException(e.toString()));
+    }
+  }
+
+  Future<void> logout() async {
     try {
       await auth.signOut();
       // After signing out, you can navigate to the login page or any other page as needed.
