@@ -21,15 +21,6 @@ class TaskFields {
   static const last_update_time = 'last_update_time';
 }
 
-class WordFields {
-  static const collection = 'word';
-  static const word = 'word';
-  static const pof = 'pof';
-  static const definition = 'definition';
-  static const check_time = 'check_time';
-  static const user_id = 'user_id';
-}
-
 class ArticleFields {
   static const collection = 'article';
   static const url = 'url';

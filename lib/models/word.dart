@@ -1,19 +1,44 @@
 import 'package:intl/intl.dart';
+import 'package:json_annotation/json_annotation.dart';
+import 'package:source_code/utils/preference.dart';
+import 'package:source_code/utils/utils.dart';
 
+part 'word.g.dart';
+
+@JsonSerializable()
 class Word {
+  @JsonKey(name: WordFields.word)
   String word;
+
+  @JsonKey(name: WordFields.user_id)
+  String userId;
+
+  @JsonKey(name: WordFields.search_time, fromJson: DateTime.parse, toJson: Utils.dateTimeToString)
+  DateTime searchTime;
+
+  @JsonKey(ignore: true)
   String syllable;
+
+  @JsonKey(ignore: true)
   String? audioUrl;
+
+  @JsonKey(ignore: true)
   Map<String, List<Definition>> posDefinitionMap;
 
   Word({
     required this.word,
-    required this.syllable,
+    required this.userId,
+    required this.searchTime,
+    this.syllable = '',
     this.audioUrl,
-    required this.posDefinitionMap,
+    this.posDefinitionMap = const {},
   });
 
-  static Word? fromJson(String word, List<dynamic> json) {
+  factory Word.fromJson(Map<String, dynamic> json) => _$WordFromJson(json);
+
+  Map<String, dynamic> toJson() => _$WordToJson(this);
+
+  static Word? parseFromApi(String word, List<dynamic> json) {
     String? _syllable;
     String? _audioUrl;
     Map<String, List<Definition>> _posDefinitionMap = {};
@@ -60,7 +85,8 @@ class Word {
             } else if (element[0] == "vis") {
               List<dynamic> sentenceJsonList = element[1];
               sentenceJsonList.forEach((sentenceJson) {
-                String sentence = sentenceJson["t"].replaceAll("{it}", "<i>").replaceAll("{/it}", "</i>");
+                String sentence =
+                    sentenceJson["t"].replaceAll("{it}", "<i>").replaceAll("{/it}", "</i>");
                 //remove curly brackets and the content inside them
                 sentence = sentence.replaceAll(RegExp(r'\{.*?\}'), '');
                 _sentences.add(toBeginningOfSentenceCase(sentence)!);
@@ -81,6 +107,8 @@ class Word {
     });
     if (_posDefinitionMap.isNotEmpty && _syllable != null) {
       return Word(
+          userId: Preferences().uid,
+          searchTime: DateTime.now(),
           word: word,
           syllable: _syllable!,
           posDefinitionMap: _posDefinitionMap,
@@ -122,4 +150,11 @@ class Definition {
   String toString() {
     return 'Definition: $definition\nSentences: $sentences\n';
   }
+}
+
+class WordFields {
+  static const collection = 'word';
+  static const word = 'word';
+  static const search_time = 'search_time';
+  static const user_id = 'user_id';
 }

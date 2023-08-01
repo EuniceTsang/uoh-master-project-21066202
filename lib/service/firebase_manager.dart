@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:source_code/models/comment.dart';
 import 'package:source_code/models/thread.dart';
 import 'package:source_code/models/user.dart';
+import 'package:source_code/models/word.dart';
 import 'package:source_code/utils/preference.dart';
 
 class FirebaseManager {
@@ -246,8 +247,8 @@ class FirebaseManager {
       DocumentReference doc = await db.collection(ThreadFields.collection).add(thread.toJson());
       print('thread created with ID: ${doc.id}');
     } catch (e) {
-      print("create thread failed: $e");
-      throw (CustomException("Register failed: $e"));
+      print("createThread failed: $e");
+      throw (CustomException("createThread failed: $e"));
     }
   }
 
@@ -256,8 +257,8 @@ class FirebaseManager {
       DocumentReference doc = await db.collection(CommentFields.collection).add(comment.toJson());
       print('comment created with ID: ${doc.id}');
     } catch (e) {
-      print("create comment failed: $e");
-      throw (CustomException("Register failed: $e"));
+      print("addComment failed: $e");
+      throw (CustomException("addComment failed: $e"));
     }
   }
 
@@ -279,8 +280,7 @@ class FirebaseManager {
         throw Exception("Cannot find thread");
       }
     } catch (e) {
-      print("create thread failed: $e");
-      throw (CustomException("Register failed: $e"));
+      print("toggleLikeThread failed: $e");
     }
   }
 
@@ -302,8 +302,60 @@ class FirebaseManager {
         throw Exception("Cannot find comment");
       }
     } catch (e) {
-      print("create thread failed: $e");
-      throw (CustomException("Register failed: $e"));
+      print("toggleLikeComment failed: $e");
+    }
+  }
+
+//endregion
+
+//region word
+  Future<void> updateWord(Word word) async {
+    try {
+      QuerySnapshot querySnapshot = await db
+          .collection(WordFields.collection)
+          .where(WordFields.word, isEqualTo: word.word)
+          .limit(1)
+          .get();
+      if (querySnapshot.docs.isEmpty) {
+        DocumentReference doc = await db.collection(WordFields.collection).add(word.toJson());
+        print('word created with ID: ${doc.id}');
+      } else {
+        DocumentReference wordRef = querySnapshot.docs.first.reference;
+        await wordRef.update(
+          {
+            WordFields.search_time: word.searchTime,
+          },
+        );
+        print('updated word');
+      }
+    } catch (e) {
+      print("updateWord failed: $e");
+    }
+  }
+
+  Future<List<Word>> getWords() async {
+    try {
+      QuerySnapshot querySnapshot = await db
+          .collection(WordFields.collection)
+          .where(WordFields.user_id, isEqualTo: uid)
+          .orderBy(WordFields.search_time, descending: true)
+          .limit(100)
+          .get();
+      if (querySnapshot.docs.isNotEmpty) {
+        List<Word> words = [];
+        for (var element in querySnapshot.docs) {
+          Map<String, dynamic> map = element.data() as Map<String, dynamic>;
+          print(map);
+          Word word = Word.fromJson(map);
+          words.add(word);
+        }
+        return words;
+      } else {
+        return [];
+      }
+    } catch (e) {
+      print("getWords failed: $e");
+      return [];
     }
   }
 

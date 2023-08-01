@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:source_code/bloc/base_navigation_cubit.dart';
 import 'package:source_code/bloc/home_cubit.dart';
+import 'package:source_code/models/thread.dart';
+import 'package:source_code/models/word.dart';
 import 'package:source_code/utils/constants.dart';
 import 'package:source_code/utils/preference.dart';
+import 'package:source_code/utils/utils.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -12,7 +15,7 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
         create: (BuildContext context) {
-          return HomeCubit();
+          return HomeCubit(context);
         },
         child: _HomeScreenView());
   }
@@ -90,7 +93,6 @@ class _HomeScreenView extends StatelessWidget {
 
   String testText =
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
-  List<String> testHistoryWords = ["condemn", "fetter", "forge", "odour"];
 
   Widget _buildProfileBlock(BuildContext context) {
     return Card(
@@ -220,6 +222,8 @@ class _HomeScreenView extends StatelessWidget {
   }
 
   Widget _buildHistoryBlock(BuildContext context) {
+    HomeCubit cubit = context.read<HomeCubit>();
+    HomeState state = cubit.state;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0),
       child: Column(
@@ -261,31 +265,43 @@ class _HomeScreenView extends StatelessWidget {
             ),
           ),
           Card(
-              child: ListView.separated(
-                  physics: NeverScrollableScrollPhysics(),
-                  // Disable scrolling
-                  shrinkWrap: true,
-                  itemCount: testHistoryWords.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return ListTile(
-                      dense: true,
-                      title: Text(
-                        testHistoryWords[index],
-                        style: TextStyle(fontSize: 15),
+              child: state.wordHistory.isEmpty
+                  ? Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Text(
+                          "No word history at the moment",
+                          style: TextStyle(fontSize: 15),
+                        ),
                       ),
-                      trailing: Icon(
-                        Icons.arrow_forward_ios_rounded,
-                        size: 15,
-                      ),
-                      onTap: () {
-                        Navigator.pushNamed(context, Constants.routeDictionary, arguments: testHistoryWords[index]);
+                    )
+                  : ListView.separated(
+                      physics: NeverScrollableScrollPhysics(),
+                      // Disable scrolling
+                      shrinkWrap: true,
+                      itemCount: state.wordHistory.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        Word word = state.wordHistory[index];
+                        return ListTile(
+                          dense: true,
+                          title: Text(
+                            word.word,
+                            style: TextStyle(fontSize: 15),
+                          ),
+                          trailing: Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            size: 15,
+                          ),
+                          onTap: () {
+                            Navigator.pushNamed(context, Constants.routeDictionary,
+                                arguments: word.word);
+                          },
+                        );
                       },
-                    );
-                  },
-                  separatorBuilder: (BuildContext context, int index) => Divider(
-                        height: 1,
-                        color: Colors.grey,
-                      )))
+                      separatorBuilder: (BuildContext context, int index) => Divider(
+                            height: 1,
+                            color: Colors.grey,
+                          )))
         ],
       ),
     );
@@ -335,30 +351,34 @@ class _HomeScreenView extends StatelessWidget {
           ),
           Card(
               child: InkWell(
-                onTap: (){
-                  Navigator.pushNamed(context, Constants.routeReading);
-                },
-                child: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Column(
+            onTap: () {
+              Navigator.pushNamed(context, Constants.routeReading);
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start, // Align children to the left
                 children: [
                   Text(
                     testText.substring(0, 20),
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                   ),
-                  SizedBox(height: 5,),
+                  SizedBox(
+                    height: 5,
+                  ),
                   Text(testText),
                 ],
+              ),
             ),
-          ),
-              ))
+          ))
         ],
       ),
     );
   }
 
   Widget _buildLatestTopicBlock(BuildContext context) {
+    HomeCubit cubit = context.read<HomeCubit>();
+    HomeState state = cubit.state;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0),
       child: Column(
@@ -401,53 +421,72 @@ class _HomeScreenView extends StatelessWidget {
             ),
           ),
           Card(
-              child: ListView.separated(
-            physics: NeverScrollableScrollPhysics(),
-            // Disable scrolling
-            itemCount: 3,
-            shrinkWrap: true,
-            separatorBuilder: (BuildContext context, int index) =>
-                Divider(color: Colors.grey, height: 1),
-            itemBuilder: (BuildContext context, int index) {
-              return ListTile(
-                title:
-                    Text(testText.substring(0, 10), style: TextStyle(fontWeight: FontWeight.bold)),
-                subtitle: Row(
-                  children: [Expanded(child: Text("by Eren")), Text("1m")],
-                ),
-                trailing: SizedBox(
-                  width: 50,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.comment_outlined,
-                            size: 20,
-                          ),
-                          Text("100")
-                        ],
+              child: state.threads.isEmpty
+                  ? Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Text(
+                          "No post at the moment",
+                          style: TextStyle(fontSize: 15),
+                        ),
                       ),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.favorite_border_rounded,
-                            size: 20,
+                    )
+                  : ListView.separated(
+                      physics: NeverScrollableScrollPhysics(),
+                      // Disable scrolling
+                      itemCount: state.threads.length,
+                      shrinkWrap: true,
+                      separatorBuilder: (BuildContext context, int index) =>
+                          Divider(color: Colors.grey, height: 1),
+                      itemBuilder: (BuildContext context, int index) {
+                        Thread thread = state.threads[index];
+                        return ListTile(
+                          title: Text(thread.title, style: TextStyle(fontWeight: FontWeight.bold)),
+                          subtitle: Row(
+                            children: [
+                              Expanded(child: Text("by ${thread.author!.username}")),
+                              Text(Utils.formatTimeDifference(thread.postTime))
+                            ],
                           ),
-                          Text("100")
-                        ],
-                      )
-                    ],
-                  ),
-                ),
-                onTap: () {
-                  Navigator.pushNamed(context, Constants.routeForumThread);
-                },
-              );
-            },
-          ))
+                          trailing: SizedBox(
+                            width: 50,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.comment_outlined,
+                                      size: 20,
+                                    ),
+                                    SizedBox(
+                                      width: 5,
+                                    ),
+                                    Text(thread.commentNumber.toString())
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.favorite_border_rounded,
+                                      size: 20,
+                                    ),
+                                    SizedBox(
+                                      width: 5,
+                                    ),
+                                    Text(thread.likedUsers.length.toString())
+                                  ],
+                                )
+                              ],
+                            ),
+                          ),
+                          onTap: () {
+                            Navigator.pushNamed(context, Constants.routeForumThread);
+                          },
+                        );
+                      },
+                    ))
         ],
       ),
     );

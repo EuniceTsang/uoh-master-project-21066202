@@ -54,14 +54,14 @@ class _ForumListScreenView extends StatelessWidget {
                 state.allThreads.isEmpty
                     ? Center(
                         child: Text(
-                        "No any post at the moment",
+                        "No post at the moment",
                         style: TextStyle(color: Colors.grey, fontSize: 20),
                       ))
                     : _buildThreadList(context, state.allThreads),
                 state.myThreads.isEmpty
                     ? Center(
                         child: Text(
-                        "No any post at the moment",
+                        "No post at the moment",
                         style: TextStyle(color: Colors.grey, fontSize: 20),
                       ))
                     : _buildThreadList(context, state.myThreads)
@@ -71,7 +71,7 @@ class _ForumListScreenView extends StatelessWidget {
                 onPressed: () {
                   _showCreateThreadBottomSheet(context);
                 },
-                label: Text("Create a thread")),
+                label: Text("Create a post")),
           ),
         ),
       );
