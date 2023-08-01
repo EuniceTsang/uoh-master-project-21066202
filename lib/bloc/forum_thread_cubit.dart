@@ -13,7 +13,8 @@ class ForumThreadCubit extends Cubit<ForumThreadState> {
   late FirebaseManager firebaseManager;
   late Repository repository;
 
-  ForumThreadCubit(BuildContext context, Thread? thread) : super(ForumThreadState(thread: thread!)) {
+  ForumThreadCubit(BuildContext context, Thread? thread)
+      : super(ForumThreadState(thread: thread!)) {
     this.context = context;
     this.thread = thread;
     firebaseManager = context.read<FirebaseManager>();
@@ -24,10 +25,9 @@ class ForumThreadCubit extends Cubit<ForumThreadState> {
     }
   }
 
-  void loadThreadData() {
-    firebaseManager.getComments(thread!.threadId).then((value) {
-      emit(state.copyWith(thread: thread, comments: value));
-    });
+  Future<void> loadThreadData() async {
+    List<Comment> comments = await firebaseManager.getComments(thread!.threadId);
+    emit(state.copyWith(thread: thread, comments: comments));
   }
 
   void toggleLikeThread() {
@@ -40,7 +40,7 @@ class ForumThreadCubit extends Cubit<ForumThreadState> {
       likeUsers.add(uid);
     }
     thread.likedUsers = likeUsers;
-    emit(state.copyWith(thread: thread));
+    firebaseManager.toggleLikeThread(thread).then((value) => loadThreadData());
   }
 
   void toggleLikeComment(Comment comment) {
@@ -52,7 +52,7 @@ class ForumThreadCubit extends Cubit<ForumThreadState> {
       likeUsers.add(uid);
     }
     comment.likedUsers = likeUsers;
-    emit(state);
+    firebaseManager.toggleLikeComment(comment).then((value) => loadThreadData());
   }
 
   void addComment(String body) {
@@ -63,10 +63,7 @@ class ForumThreadCubit extends Cubit<ForumThreadState> {
         postTime: DateTime.now(),
         likedUsers: [],
         threadId: thread!.threadId);
-    List<Comment> comments = List.from(state.comments);
-    comments.add(comment);
-    comments.sort((a, b) => b.postTime.compareTo(a.postTime));
-    emit(state.copyWith(comments: comments));
+    firebaseManager.addComment(comment).then((value) => loadThreadData());
   }
 }
 

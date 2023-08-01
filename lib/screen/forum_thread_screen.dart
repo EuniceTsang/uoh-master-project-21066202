@@ -34,20 +34,24 @@ class _ForumThreadScreenView extends StatelessWidget {
               _showAddCommentBottomSheet(context);
             },
             label: Text("Add a comment")),
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildThreadItem(context),
-                ...List.generate(state.comments.length, (index) {
-                  return _buildCommentItem(context, state.comments[index]);
-                }),
-                SizedBox(
-                  height: 100,
-                )
-              ],
+        body: RefreshIndicator(
+          onRefresh: () => cubit.loadThreadData(),
+          child: SingleChildScrollView(
+            physics: AlwaysScrollableScrollPhysics(),
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildThreadItem(context),
+                  ...List.generate(state.comments.length, (index) {
+                    return _buildCommentItem(context, state.comments[index]);
+                  }),
+                  SizedBox(
+                    height: 100,
+                  )
+                ],
+              ),
             ),
           ),
         ),

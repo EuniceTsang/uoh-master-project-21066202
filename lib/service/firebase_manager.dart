@@ -250,6 +250,63 @@ class FirebaseManager {
       throw (CustomException("Register failed: $e"));
     }
   }
+
+  Future<void> addComment(Comment comment) async {
+    try {
+      DocumentReference doc = await db.collection(CommentFields.collection).add(comment.toJson());
+      print('comment created with ID: ${doc.id}');
+    } catch (e) {
+      print("create comment failed: $e");
+      throw (CustomException("Register failed: $e"));
+    }
+  }
+
+  Future<void> toggleLikeThread(Thread thread) async {
+    try {
+      QuerySnapshot querySnapshot = await db
+          .collection(ThreadFields.collection)
+          .where(ThreadFields.thread_id, isEqualTo: thread.threadId)
+          .limit(1)
+          .get();
+      if (querySnapshot.docs.isNotEmpty) {
+        DocumentReference threadRef = querySnapshot.docs.first.reference;
+        await threadRef.update(
+          {
+            ThreadFields.liked_users: thread.likedUsers,
+          },
+        );
+      } else {
+        throw Exception("Cannot find thread");
+      }
+    } catch (e) {
+      print("create thread failed: $e");
+      throw (CustomException("Register failed: $e"));
+    }
+  }
+
+  Future<void> toggleLikeComment(Comment comment) async {
+    try {
+      QuerySnapshot querySnapshot = await db
+          .collection(CommentFields.collection)
+          .where(CommentFields.comment_id, isEqualTo: comment.commentId)
+          .limit(1)
+          .get();
+      if (querySnapshot.docs.isNotEmpty) {
+        DocumentReference commentRef = querySnapshot.docs.first.reference;
+        await commentRef.update(
+          {
+            CommentFields.liked_users: comment.likedUsers,
+          },
+        );
+      } else {
+        throw Exception("Cannot find comment");
+      }
+    } catch (e) {
+      print("create thread failed: $e");
+      throw (CustomException("Register failed: $e"));
+    }
+  }
+
 //endregion
 }
 

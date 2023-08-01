@@ -17,14 +17,13 @@ class ForumListCubit extends Cubit<ForumListState> {
     loadForumData();
   }
 
-  void loadForumData() {
-    firebaseManager.getThreadList().then((value) {
-      repository.updateThread(value);
-      emit(state.copyWith(newThreads: repository.allThreads, myThreads: repository.myThreads));
-    });
+  Future<void> loadForumData() async{
+    List<Thread> threadList = await firebaseManager.getThreadList();
+    repository.updateThread(threadList);
+    emit(state.copyWith(newThreads: repository.allThreads, myThreads: repository.myThreads));
   }
 
-  void createThread(String title, String body) async{
+  void createThread(String title, String body) async {
     Thread thread = Thread(
         threadId: Uuid().v4(),
         title: title,

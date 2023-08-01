@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:focus_detector/focus_detector.dart';
 import 'package:source_code/bloc/forum_list_cubit.dart';
 import 'package:source_code/models/thread.dart';
 import 'package:source_code/utils/constants.dart';
@@ -34,95 +36,108 @@ class _ForumListScreenView extends StatelessWidget {
     return BlocBuilder<ForumListCubit, ForumListState>(builder: (context, state) {
       ForumListCubit cubit = context.read<ForumListCubit>();
       ForumListState state = cubit.state;
-      return DefaultTabController(
-        length: 2,
-        child: Scaffold(
-          appBar: AppBar(
-            title: Text("Forum"),
-            bottom: PreferredSize(
-                preferredSize: _tabBar.preferredSize,
-                child: ColoredBox(color: Colors.white, child: _tabBar)),
+      return FocusDetector(
+        onFocusGained: () {
+          cubit.loadForumData();
+        },
+        child: DefaultTabController(
+          length: 2,
+          child: Scaffold(
+            appBar: AppBar(
+              title: Text("Forum"),
+              bottom: PreferredSize(
+                  preferredSize: _tabBar.preferredSize,
+                  child: ColoredBox(color: Colors.white, child: _tabBar)),
+            ),
+            body: TabBarView(
+              children: [
+                state.allThreads.isEmpty
+                    ? Center(
+                        child: Text(
+                        "No any post at the moment",
+                        style: TextStyle(color: Colors.grey, fontSize: 20),
+                      ))
+                    : _buildThreadList(context, state.allThreads),
+                state.myThreads.isEmpty
+                    ? Center(
+                        child: Text(
+                        "No any post at the moment",
+                        style: TextStyle(color: Colors.grey, fontSize: 20),
+                      ))
+                    : _buildThreadList(context, state.myThreads)
+              ],
+            ),
+            floatingActionButton: FloatingActionButton.extended(
+                onPressed: () {
+                  _showCreateThreadBottomSheet(context);
+                },
+                label: Text("Create a thread")),
           ),
-          body: TabBarView(
-            children: [
-              state.allThreads.isEmpty
-                  ? Center(
-                      child: Text(
-                      "No any post at the moment",
-                      style: TextStyle(color: Colors.grey, fontSize: 20),
-                    ))
-                  : _buildThreadList(state.allThreads),
-              state.myThreads.isEmpty
-                  ? Center(
-                      child: Text(
-                      "No any post at the moment",
-                      style: TextStyle(color: Colors.grey, fontSize: 20),
-                    ))
-                  : _buildThreadList(state.myThreads)
-            ],
-          ),
-          floatingActionButton: FloatingActionButton.extended(
-              onPressed: () {
-                _showCreateThreadBottomSheet(context);
-              },
-              label: Text("Create a thread")),
         ),
       );
     });
   }
 
-  Widget _buildThreadList(List<Thread> threads) {
-    return ListView.builder(
-        itemCount: threads.length,
-        itemBuilder: (context, index) {
-          Thread thread = threads[index];
-          return Padding(
-            padding: EdgeInsets.only(bottom: (index == threads.length - 1) ? 100 : 0),
-            child: Card(
-              child: ListTile(
-                title: Text(thread.title, style: TextStyle(fontWeight: FontWeight.bold)),
-                subtitle: Row(
-                  children: [
-                    Expanded(child: Text("by ${thread.author?.username ?? ''}")),
-                    Text(Utils.formatTimeDifference(thread.postTime))
-                  ],
-                ),
-                trailing: SizedBox(
-                  width: 50,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    crossAxisAlignment: CrossAxisAlignment.end,
+  Widget _buildThreadList(BuildContext context, List<Thread> threads) {
+    ForumListCubit cubit = context.read<ForumListCubit>();
+    return RefreshIndicator(
+      onRefresh: () => cubit.loadForumData(),
+      child: ListView.builder(
+          itemCount: threads.length,
+          itemBuilder: (context, index) {
+            Thread thread = threads[index];
+            return Padding(
+              padding: EdgeInsets.only(bottom: (index == threads.length - 1) ? 100 : 0),
+              child: Card(
+                child: ListTile(
+                  title: Text(thread.title, style: TextStyle(fontWeight: FontWeight.bold)),
+                  subtitle: Row(
                     children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.comment_outlined,
-                            size: 20,
-                          ),
-                          SizedBox(width: 5,),
-                          Text(thread.commentNumber.toString())
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.favorite_border_rounded,
-                            size: 20,
-                          ),
-                          SizedBox(width: 5,),
-                          Text(thread.likedUsers.length.toString())
-                        ],
-                      )
+                      Expanded(child: Text("by ${thread.author?.username ?? ''}")),
+                      Text(Utils.formatTimeDifference(thread.postTime))
                     ],
                   ),
+                  trailing: SizedBox(
+                    width: 50,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.comment_outlined,
+                              size: 20,
+                            ),
+                            SizedBox(
+                              width: 5,
+                            ),
+                            Text(thread.commentNumber.toString())
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.favorite_border_rounded,
+                              size: 20,
+                            ),
+                            SizedBox(
+                              width: 5,
+                            ),
+                            Text(thread.likedUsers.length.toString())
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.pushNamed(context, Constants.routeForumThread, arguments: thread);
+                  },
                 ),
-                onTap: () {
-                  Navigator.pushNamed(context, Constants.routeForumThread, arguments: thread);
-                },
               ),
-            ),
-          );
-        });
+            );
+          }),
+    );
   }
 
   void _showCreateThreadBottomSheet(BuildContext context) {
