@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:source_code/bloc/forum_thread_cubit.dart';
+import 'package:source_code/models/comment.dart';
+import 'package:source_code/models/thread.dart';
+import 'package:source_code/utils/preference.dart';
 import 'package:source_code/utils/utils.dart';
 
 class ForumThreadScreen extends StatelessWidget {
@@ -8,9 +11,11 @@ class ForumThreadScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final argument = ModalRoute.of(context)!.settings.arguments;
+    Thread? thread = argument != null && argument is Thread ? argument : null;
     return BlocProvider(
         create: (BuildContext context) {
-          return ForumThreadCubit();
+          return ForumThreadCubit(context, thread);
         },
         child: _ForumThreadScreenView());
   }
@@ -53,21 +58,23 @@ class _ForumThreadScreenView extends StatelessWidget {
   Widget _buildThreadItem(BuildContext context) {
     ForumThreadCubit cubit = context.read<ForumThreadCubit>();
     ForumThreadState state = cubit.state;
+    Thread thread = state.thread;
+    bool liked = thread.likedUsers.contains(Preferences().uid);
     return Card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ListTile(
             title: Text(
-              state.threadTitle,
+              thread.title,
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
             ),
-            subtitle: Text('by ${state.threadAuthor}'),
-            trailing: Text(Utils.formatTimeDifference(state.threadPostTime!)),
+            subtitle: Text('by ${thread.author!.username}'),
+            trailing: Text(Utils.formatTimeDifference(thread.postTime)),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 15),
-            child: Text(state.threadBody),
+            child: Text(thread.body),
           ),
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -77,10 +84,10 @@ class _ForumThreadScreenView extends StatelessWidget {
                     cubit.toggleLikeThread();
                   },
                   icon: Icon(
-                    state.likeThread ? Icons.favorite : Icons.favorite_border,
-                    color: state.likeThread ? Colors.pink : Colors.grey,
+                    liked ? Icons.favorite : Icons.favorite_border,
+                    color: liked ? Colors.pink : Colors.grey,
                   )),
-              Text((state.threadLikes).toString())
+              Text((thread.likedUsers.length).toString())
             ],
           )
         ],
@@ -91,17 +98,17 @@ class _ForumThreadScreenView extends StatelessWidget {
   Widget _buildCommentItem(BuildContext context, Comment comment) {
     ForumThreadCubit cubit = context.read<ForumThreadCubit>();
     ForumThreadState state = cubit.state;
-    bool likeComment = state.likeComments.contains(comment.id);
+    bool likeComment = comment.likedUsers.contains(Preferences().uid);
     return Card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ListTile(
             title: Text(
-              comment.username,
+              comment.author!.username,
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
             ),
-            trailing: Text(Utils.formatTimeDifference(comment.commentPostTime)),
+            trailing: Text(Utils.formatTimeDifference(comment.postTime)),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -118,7 +125,7 @@ class _ForumThreadScreenView extends StatelessWidget {
                     likeComment ? Icons.favorite : Icons.favorite_border,
                     color: likeComment ? Colors.pink : Colors.grey,
                   )),
-              Text((comment.likes).toString())
+              Text((comment.likedUsers.length).toString())
             ],
           )
         ],
@@ -185,7 +192,8 @@ class _ForumThreadScreenView extends StatelessWidget {
                         }
                         return null;
                       },
-                      maxLines: 10, // Allow multi-line input
+                      maxLines: 10,
+                      // Allow multi-line input
                       decoration: InputDecoration(
                         border: OutlineInputBorder(),
                         hintText: 'Enter your comment here',

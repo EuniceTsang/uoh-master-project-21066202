@@ -1,59 +1,59 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:source_code/models/thread.dart';
+import 'package:source_code/service/firebase_manager.dart';
+import 'package:source_code/service/repository.dart';
 import 'package:source_code/utils/preference.dart';
+import 'package:uuid/uuid.dart';
 
 class ForumListCubit extends Cubit<ForumListState> {
-  String testText =
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
+  late FirebaseManager firebaseManager;
+  late Repository repository;
 
-  ForumListCubit() : super(const ForumListState()) {
+  ForumListCubit(BuildContext context) : super(const ForumListState()) {
     //load data
-    Thread thread = Thread(
-        testText.substring(0, 20), "Eren", DateTime.now().subtract(Duration(days: 1)),
-        likes: 100, comments: 100);
-    List<Thread> threads = [];
-    for (int i = 0; i < 20; i++) {
-      threads.add(thread);
-    }
-    emit(state.copyWith(newThreads: threads));
+    firebaseManager = context.read<FirebaseManager>();
+    repository = context.read<Repository>();
+    loadForumData();
   }
 
-  void createThread(String title, String body){
-    Thread thread = Thread(title, Preferences().username, DateTime.now());
-    List<Thread> newThreads = List.from(state.newThreads);
-    List<Thread> myThreads = List.from(state.myThreads);
-    newThreads.add(thread);
-    myThreads.add(thread);
+  void loadForumData() {
+    firebaseManager.getThreadList().then((value) {
+      repository.updateThread(value);
+      emit(state.copyWith(newThreads: repository.allThreads, myThreads: repository.myThreads));
+    });
+  }
 
-    newThreads.sort((a, b) => b.postTime.compareTo(a.postTime));
-    myThreads.sort((a, b) => b.postTime.compareTo(a.postTime));
-
-    emit(state.copyWith(newThreads: newThreads, myThreads: myThreads));
+  void createThread(String title, String body) async{
+    Thread thread = Thread(
+        threadId: Uuid().v4(),
+        title: title,
+        body: body,
+        postTime: DateTime.now(),
+        likedUsers: [],
+        userId: Preferences().uid);
+    try {
+      firebaseManager.createThread(thread);
+      loadForumData();
+    } on CustomException catch (e) {
+      print(e);
+    }
   }
 }
 
 class ForumListState {
-  final List<Thread> newThreads;
+  final List<Thread> allThreads;
   final List<Thread> myThreads;
 
-  const ForumListState({this.newThreads = const [], this.myThreads = const []});
+  const ForumListState({this.allThreads = const [], this.myThreads = const []});
 
   ForumListState copyWith({
     List<Thread>? newThreads,
     List<Thread>? myThreads,
   }) {
     return ForumListState(
-      newThreads: newThreads ?? this.newThreads,
+      allThreads: newThreads ?? this.allThreads,
       myThreads: myThreads ?? this.myThreads,
     );
   }
-}
-
-class Thread {
-  String title;
-  String author;
-  int comments;
-  int likes;
-  DateTime postTime;
-
-  Thread(this.title, this.author, this.postTime, {this.comments = 0, this.likes = 0});
 }

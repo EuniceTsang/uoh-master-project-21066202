@@ -4,7 +4,7 @@ import 'package:source_code/utils/utils.dart';
 part 'user.g.dart';
 
 @JsonSerializable()
-class User {
+class AppUser {
   @JsonKey(name: UserFields.user_id)
   String userId;
 
@@ -27,7 +27,7 @@ class User {
       name: UserFields.last_level_update, fromJson: DateTime.parse, toJson: Utils.dateTimeToString)
   DateTime lastLevelUpdate;
 
-  User({
+  AppUser({
     required this.userId,
     required this.username,
     required this.email,
@@ -37,9 +37,9 @@ class User {
     required this.lastLevelUpdate,
   });
 
-  factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
+  factory AppUser.fromJson(Map<String, dynamic> json) => _$AppUserFromJson(json);
 
-  Map<String, dynamic> toJson() => _$UserToJson(this);
+  Map<String, dynamic> toJson() => _$AppUserToJson(this);
 }
 
 class UserFields {

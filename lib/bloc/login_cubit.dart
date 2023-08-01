@@ -1,11 +1,10 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:source_code/models/user.dart';
 import 'package:source_code/service/firebase_manager.dart';
 import 'package:source_code/service/repository.dart';
 import 'package:source_code/utils/constants.dart';
-import 'package:source_code/utils/preference.dart';
 
 class LoginCubit extends Cubit<LoginState> {
   LoginCubit() : super(const LoginState());
@@ -21,8 +20,10 @@ class LoginCubit extends Cubit<LoginState> {
 
     try {
       await firebaseManager.userLogin(state.email, state.password);
-      QueryDocumentSnapshot snapshot = await firebaseManager.getUserData();
-      repository.updateUser(snapshot);
+      AppUser? user = await firebaseManager.getUserData(FirebaseManager().uid);
+      if (user != null) {
+        repository.user = user;
+      }
       EasyLoading.dismiss();
       Navigator.pushReplacementNamed(context, Constants.routeBaseNavigation);
     } on CustomException catch (e) {

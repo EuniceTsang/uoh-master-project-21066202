@@ -1,93 +1,85 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:source_code/models/comment.dart';
+import 'package:source_code/models/thread.dart';
+import 'package:source_code/service/firebase_manager.dart';
+import 'package:source_code/service/repository.dart';
 import 'package:source_code/utils/preference.dart';
+import 'package:uuid/uuid.dart';
 
 class ForumThreadCubit extends Cubit<ForumThreadState> {
-  String testText =
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
+  Thread? thread;
+  late BuildContext context;
+  late FirebaseManager firebaseManager;
+  late Repository repository;
 
-  ForumThreadCubit() : super(ForumThreadState()) {
+  ForumThreadCubit(BuildContext context, Thread? thread) : super(ForumThreadState(thread: thread!)) {
+    this.context = context;
+    this.thread = thread;
+    firebaseManager = context.read<FirebaseManager>();
+    repository = context.read<Repository>();
     //load data
-    Comment comment = Comment(1, "Misaka", testText, DateTime.now().subtract(Duration(minutes: 15)));
-    emit(state.copyWith(threadTitle: testText.substring(0, 20),
-        threadBody: testText,
-        threadAuthor: "Eren",
-        threadLikes: 99,
-        threadPostTime: DateTime.now().subtract(Duration(hours: 1)),
-        comments: [comment]));
+    if (thread != null) {
+      loadThreadData();
+    }
+  }
+
+  void loadThreadData() {
+    firebaseManager.getComments(thread!.threadId).then((value) {
+      emit(state.copyWith(thread: thread, comments: value));
+    });
   }
 
   void toggleLikeThread() {
-    emit(state.copyWith(likeThread: !state.likeThread,
-        threadLikes: state.threadLikes + (state.likeThread ? -1 : 1)));
+    Thread thread = state.thread;
+    List<String> likeUsers = thread.likedUsers;
+    String uid = Preferences().uid;
+    if (likeUsers.contains(uid)) {
+      likeUsers.remove(uid);
+    } else {
+      likeUsers.add(uid);
+    }
+    thread.likedUsers = likeUsers;
+    emit(state.copyWith(thread: thread));
   }
 
   void toggleLikeComment(Comment comment) {
-    List<int> likeComments = List.from(state.likeComments);
-    if (likeComments.contains(comment.id)) {
-      likeComments.remove(comment.id);
-      comment.likes -= 1;
+    List<String> likeUsers = comment.likedUsers;
+    String uid = Preferences().uid;
+    if (likeUsers.contains(uid)) {
+      likeUsers.remove(uid);
     } else {
-      likeComments.add(comment.id);
-      comment.likes += 1;
+      likeUsers.add(uid);
     }
-    emit(state.copyWith(likeComments: likeComments));
+    comment.likedUsers = likeUsers;
+    emit(state);
   }
 
   void addComment(String body) {
     Comment comment = Comment(
-        state.comments.length + 1, Preferences().username, body, DateTime.now());
+        commentId: Uuid().v4(),
+        userId: Preferences().uid,
+        body: body,
+        postTime: DateTime.now(),
+        likedUsers: [],
+        threadId: thread!.threadId);
     List<Comment> comments = List.from(state.comments);
     comments.add(comment);
+    comments.sort((a, b) => b.postTime.compareTo(a.postTime));
     emit(state.copyWith(comments: comments));
   }
 }
 
 class ForumThreadState {
-  String threadTitle;
-  String threadBody;
-  String threadAuthor;
-  int threadLikes;
-  bool likeThread;
-  DateTime? threadPostTime;
-  List<int> likeComments;
+  Thread thread;
   List<Comment> comments;
 
-  ForumThreadState({this.threadTitle = '',
-    this.threadBody = '',
-    this.threadAuthor = '',
-    this.threadLikes = 0,
-    this.threadPostTime,
-    this.likeThread = false,
-    this.likeComments = const [],
-    this.comments = const []});
+  ForumThreadState({required this.thread, this.comments = const []});
 
-  ForumThreadState copyWith({String? threadTitle,
-    String? threadBody,
-    String? threadAuthor,
-    DateTime? threadPostTime,
-    int? threadLikes,
-    bool? likeThread,
-    List<int>? likeComments,
-    List<Comment>? comments}) {
+  ForumThreadState copyWith({Thread? thread, List<Comment>? comments}) {
     return ForumThreadState(
-      threadTitle: threadTitle ?? this.threadTitle,
-      threadBody: threadBody ?? this.threadBody,
-      threadAuthor: threadAuthor ?? this.threadAuthor,
-      threadLikes: threadLikes ?? this.threadLikes,
-      threadPostTime: threadPostTime ?? this.threadPostTime,
-      likeThread: likeThread ?? this.likeThread,
-      likeComments: likeComments ?? this.likeComments,
+      thread: thread ?? this.thread,
       comments: comments ?? this.comments,
     );
   }
-}
-
-class Comment {
-  int id;
-  String username;
-  int likes;
-  String body;
-  DateTime commentPostTime;
-
-  Comment(this.id, this.username, this.body, this.commentPostTime, {this.likes = 0});
 }

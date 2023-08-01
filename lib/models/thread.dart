@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:source_code/models/user.dart';
 import 'package:source_code/utils/utils.dart';
 part 'thread.g.dart';
 
@@ -25,6 +26,9 @@ class Thread {
   @JsonKey(ignore: true)
   int? commentNumber;
 
+  @JsonKey(ignore: true)
+  AppUser? author;
+
   Thread({
     required this.threadId,
     required this.title,
@@ -33,7 +37,13 @@ class Thread {
     required this.userId,
     required this.likedUsers,
     this.commentNumber,
+    this.author,
   });
+
+  factory Thread.fromJson(Map<String, dynamic> json) => _$ThreadFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ThreadToJson(this);
+
 }
 
 class ThreadFields {

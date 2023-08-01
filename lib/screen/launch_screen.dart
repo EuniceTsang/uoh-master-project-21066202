@@ -1,7 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:source_code/models/user.dart';
 import 'package:source_code/service/firebase_manager.dart';
 import 'package:source_code/service/repository.dart';
 import 'package:source_code/utils/constants.dart';
@@ -32,8 +32,10 @@ class _LaunchState extends State<LaunchScreen> {
       Navigator.pushReplacementNamed(context, Constants.routeLogin);
     } else {
       try {
-        QueryDocumentSnapshot snapshot = await firebaseManager.getUserData();
-        repository.updateUser(snapshot);
+        AppUser? user = await firebaseManager.getUserData(FirebaseManager().uid);
+        if (user != null) {
+          repository.user = user;
+        }
       } catch (e) {
         print(e);
       }

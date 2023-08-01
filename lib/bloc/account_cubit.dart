@@ -17,7 +17,7 @@ class AccountCubit extends Cubit<AccountState> {
   }
 
   void loadUserData() {
-    User? user = repository.user;
+    AppUser? user = repository.user;
     print(user?.targetTime ?? 'no');
     emit(state.copyWith(targetTime: user?.targetTime, targetReading: user?.targetReading));
   }

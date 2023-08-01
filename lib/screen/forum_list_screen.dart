@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:source_code/bloc/forum_list_cubit.dart';
+import 'package:source_code/models/thread.dart';
 import 'package:source_code/utils/constants.dart';
 import 'package:source_code/utils/utils.dart';
 
@@ -11,18 +12,13 @@ class ForumListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
         create: (BuildContext context) {
-          return ForumListCubit();
+          return ForumListCubit(context);
         },
         child: _ForumListScreenView());
   }
 }
 
 class _ForumListScreenView extends StatelessWidget {
-  final TextEditingController _searchController = TextEditingController();
-  final FocusNode _searchFocusNode = FocusNode();
-
-  String testText =
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
   TabBar _tabBar = TabBar(
     tabs: [
       Tab(text: 'New post'),
@@ -48,7 +44,22 @@ class _ForumListScreenView extends StatelessWidget {
                 child: ColoredBox(color: Colors.white, child: _tabBar)),
           ),
           body: TabBarView(
-            children: [_buildThreadList(state.newThreads), _buildThreadList(state.myThreads)],
+            children: [
+              state.allThreads.isEmpty
+                  ? Center(
+                      child: Text(
+                      "No any post at the moment",
+                      style: TextStyle(color: Colors.grey, fontSize: 20),
+                    ))
+                  : _buildThreadList(state.allThreads),
+              state.myThreads.isEmpty
+                  ? Center(
+                      child: Text(
+                      "No any post at the moment",
+                      style: TextStyle(color: Colors.grey, fontSize: 20),
+                    ))
+                  : _buildThreadList(state.myThreads)
+            ],
           ),
           floatingActionButton: FloatingActionButton.extended(
               onPressed: () {
@@ -66,13 +77,15 @@ class _ForumListScreenView extends StatelessWidget {
         itemBuilder: (context, index) {
           Thread thread = threads[index];
           return Padding(
-            padding: EdgeInsets.only(bottom: (index == threads.length- 1) ? 100 : 0),
+            padding: EdgeInsets.only(bottom: (index == threads.length - 1) ? 100 : 0),
             child: Card(
               child: ListTile(
-                title:
-                    Text(thread.title, style: TextStyle(fontWeight: FontWeight.bold)),
+                title: Text(thread.title, style: TextStyle(fontWeight: FontWeight.bold)),
                 subtitle: Row(
-                  children: [Expanded(child: Text("by ${thread.author}")), Text(Utils.formatTimeDifference(thread.postTime))],
+                  children: [
+                    Expanded(child: Text("by ${thread.author?.username ?? ''}")),
+                    Text(Utils.formatTimeDifference(thread.postTime))
+                  ],
                 ),
                 trailing: SizedBox(
                   width: 50,
@@ -86,7 +99,8 @@ class _ForumListScreenView extends StatelessWidget {
                             Icons.comment_outlined,
                             size: 20,
                           ),
-                          Text(thread.comments.toString())
+                          SizedBox(width: 5,),
+                          Text(thread.commentNumber.toString())
                         ],
                       ),
                       Row(
@@ -95,14 +109,15 @@ class _ForumListScreenView extends StatelessWidget {
                             Icons.favorite_border_rounded,
                             size: 20,
                           ),
-                          Text(thread.likes.toString())
+                          SizedBox(width: 5,),
+                          Text(thread.likedUsers.length.toString())
                         ],
                       )
                     ],
                   ),
                 ),
                 onTap: () {
-                  Navigator.pushNamed(context, Constants.routeForumThread);
+                  Navigator.pushNamed(context, Constants.routeForumThread, arguments: thread);
                 },
               ),
             ),
@@ -179,7 +194,9 @@ class _ForumListScreenView extends StatelessWidget {
                               hintText: 'Enter your title here',
                             ),
                           ),
-                          SizedBox(height: 10,),
+                          SizedBox(
+                            height: 10,
+                          ),
                           TextFormField(
                             controller: bodyController,
                             validator: (value) {

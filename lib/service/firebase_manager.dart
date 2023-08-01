@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:source_code/models/user.dart' hide User;
+import 'package:source_code/models/comment.dart';
+import 'package:source_code/models/thread.dart';
+import 'package:source_code/models/user.dart';
 import 'package:source_code/utils/preference.dart';
 
 class FirebaseManager {
@@ -15,6 +17,8 @@ class FirebaseManager {
   bool get isLoggedIn => FirebaseAuth.instance.currentUser != null;
 
   String get uid => auth.currentUser?.uid ?? Preferences().uid;
+
+  //region login/logout
 
   Future<void> userRegister(String email, String username, String password) async {
     QuerySnapshot querySnapshot =
@@ -34,7 +38,7 @@ class FirebaseManager {
         UserFields.last_level_update: DateTime.now().toString()
       };
       DocumentReference doc = await db.collection(UserFields.collection).add(user);
-      print('User added with ID: ${doc.id}');
+      print('User created with ID: ${doc.id}');
     } catch (e) {
       print("Register failed: $e");
       throw (CustomException("Register failed: $e"));
@@ -74,21 +78,39 @@ class FirebaseManager {
     }
   }
 
-  Future<QueryDocumentSnapshot> getUserData() async {
+  Future<void> logout() async {
+    try {
+      await auth.signOut();
+      // After signing out, you can navigate to the login page or any other page as needed.
+      // For example, you can use Navigator to navigate to the login page:
+      // Navigator.pushReplacementNamed(context, '/login');
+    } catch (e) {
+      print('Error logging out: $e');
+      throw (CustomException(e.toString()));
+    }
+  }
+
+  //endregion
+
+  //region user
+
+  Future<AppUser?> getUserData(String userId) async {
     try {
       QuerySnapshot querySnapshot = await db
           .collection(UserFields.collection)
-          .where(UserFields.user_id, isEqualTo: uid)
+          .where(UserFields.user_id, isEqualTo: userId)
           .limit(1)
           .get();
       if (querySnapshot.docs.isNotEmpty) {
-        return querySnapshot.docs.first;
+        Map<String, dynamic> map = querySnapshot.docs.first.data() as Map<String, dynamic>;
+        print(map);
+        return AppUser.fromJson(map);
       } else {
         throw Exception("Cannot find user profile");
       }
     } catch (e) {
       print(e);
-      throw (CustomException(e.toString()));
+      return null;
     }
   }
 
@@ -146,17 +168,89 @@ class FirebaseManager {
     }
   }
 
-  Future<void> logout() async {
+  //endregion
+
+  // region thread
+  Future<List<Thread>> getThreadList() async {
     try {
-      await auth.signOut();
-      // After signing out, you can navigate to the login page or any other page as needed.
-      // For example, you can use Navigator to navigate to the login page:
-      // Navigator.pushReplacementNamed(context, '/login');
-    } catch (e) {
-      print('Error logging out: $e');
-      throw (CustomException(e.toString()));
+      QuerySnapshot querySnapshot = await db
+          .collection(ThreadFields.collection)
+          .orderBy(ThreadFields.post_time, descending: true)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        List<Thread> threads = [];
+        for (var element in querySnapshot.docs) {
+          Map<String, dynamic> map = element.data() as Map<String, dynamic>;
+          print(map);
+          Thread thread = Thread.fromJson(map);
+          thread.commentNumber = await getCommentNumber(thread.threadId);
+          thread.author = await getUserData(thread.userId);
+          threads.add(thread);
+        }
+        return threads;
+      } else {
+        return [];
+      }
+    } catch (e, stacktrace) {
+      print(e);
+      print(stacktrace);
+      return [];
     }
   }
+
+  Future<int> getCommentNumber(String threadId) async {
+    try {
+      AggregateQuerySnapshot snapshot = await db
+          .collection(CommentFields.collection)
+          .where(CommentFields.thread_id, isEqualTo: threadId)
+          .count()
+          .get();
+      return snapshot.count;
+    } catch (e, stacktrace) {
+      print(e);
+      print(stacktrace);
+      return 0;
+    }
+  }
+
+  Future<List<Comment>> getComments(String threadId) async {
+    try {
+      QuerySnapshot querySnapshot = await db
+          .collection(CommentFields.collection)
+          .where(ThreadFields.thread_id, isEqualTo: threadId)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        List<Comment> comments = [];
+        for (var element in querySnapshot.docs) {
+          Map<String, dynamic> map = element.data() as Map<String, dynamic>;
+          print(map);
+          Comment comment = Comment.fromJson(map);
+          comment.author = await getUserData(comment.userId);
+          comments.add(comment);
+        }
+        return comments;
+      } else {
+        return [];
+      }
+    } catch (e, stacktrace) {
+      print(e);
+      print(stacktrace);
+      return [];
+    }
+  }
+
+  Future<void> createThread(Thread thread) async {
+    try {
+      DocumentReference doc = await db.collection(ThreadFields.collection).add(thread.toJson());
+      print('thread created with ID: ${doc.id}');
+    } catch (e) {
+      print("create thread failed: $e");
+      throw (CustomException("Register failed: $e"));
+    }
+  }
+//endregion
 }
 
 class CustomException implements Exception {
