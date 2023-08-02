@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:source_code/bloc/base_navigation_cubit.dart';
 import 'package:source_code/bloc/home_cubit.dart';
+import 'package:source_code/models/article.dart';
 import 'package:source_code/models/thread.dart';
 import 'package:source_code/models/word.dart';
 import 'package:source_code/utils/constants.dart';
@@ -308,6 +309,9 @@ class _HomeScreenView extends StatelessWidget {
   }
 
   Widget _buildRecommendReadingBlock(BuildContext context) {
+    HomeCubit cubit = context.read<HomeCubit>();
+    HomeState state = cubit.state;
+    Article? article = state.article;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0),
       child: Column(
@@ -349,28 +353,57 @@ class _HomeScreenView extends StatelessWidget {
               ],
             ),
           ),
-          Card(
-              child: InkWell(
-            onTap: () {
-              Navigator.pushNamed(context, Constants.routeReading);
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start, // Align children to the left
-                children: [
-                  Text(
-                    testText.substring(0, 20),
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          article == null
+              ? Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Text(
+                      "Failed to load article",
+                      style: TextStyle(fontSize: 15),
+                    ),
                   ),
-                  SizedBox(
-                    height: 5,
-                  ),
-                  Text(testText),
-                ],
-              ),
-            ),
-          ))
+                )
+              : InkWell(
+                  onTap: () {
+                    Navigator.pushNamed(context, Constants.routeReading);
+                  },
+                  child: Card(
+                      child: InkWell(
+                        onTap: (){
+                          Navigator.pushNamed(context, Constants.routeReading);
+                        },
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Image.network(
+                              article.imageUrl.isEmpty ? Constants.placeholderPicUrl : article.imageUrl,
+                              // Replace with your own image path
+                              width: double.infinity,
+                              height: 200,
+                              fit: BoxFit.fitWidth, // Adjusts the image within the card
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                children: [
+                                  Text(
+                                    article.title,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                                  ),
+                                  Text(
+                                    article.abstract,
+                                    maxLines: 4,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      )),
+                )
         ],
       ),
     );

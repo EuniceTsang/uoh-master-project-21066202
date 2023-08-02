@@ -323,7 +323,7 @@ class FirebaseManager {
         DocumentReference wordRef = querySnapshot.docs.first.reference;
         await wordRef.update(
           {
-            WordFields.search_time: word.searchTime,
+            WordFields.search_time: word.searchTime.toString(),
           },
         );
         print('updated word');

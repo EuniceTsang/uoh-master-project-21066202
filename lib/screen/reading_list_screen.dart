@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:source_code/bloc/reading_list_cubit.dart';
+import 'package:source_code/models/article.dart';
 import 'package:source_code/utils/constants.dart';
 
 class ReadingListScreen extends StatelessWidget {
@@ -10,7 +11,7 @@ class ReadingListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
         create: (BuildContext context) {
-          return ReadingListCubit();
+          return ReadingListCubit(context);
         },
         child: _ReadingListScreenView());
   }
@@ -20,9 +21,6 @@ class _ReadingListScreenView extends StatelessWidget {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
 
-  String testText =
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
-
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ReadingListCubit, ReadingListState>(builder: (context, state) {
@@ -31,8 +29,9 @@ class _ReadingListScreenView extends StatelessWidget {
       return Scaffold(
         appBar: _buildAppBar(context),
         body: ListView.builder(
-            itemCount: 10,
+            itemCount: state.articles.length,
             itemBuilder: (context, index) {
+              Article article = state.articles[index];
               return Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Card(
@@ -44,7 +43,7 @@ class _ReadingListScreenView extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                       Image.network(
-                        'https://www.nytimes.com/images/2023/07/09/arts/09Byrd-Anniversary-illo/09Byrd-Anniversary-illo-blog427.jpg',
+                        article.imageUrl.isEmpty ? Constants.placeholderPicUrl : article.imageUrl,
                         // Replace with your own image path
                         width: double.infinity,
                         height: 200,
@@ -52,19 +51,20 @@ class _ReadingListScreenView extends StatelessWidget {
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          testText,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          testText,
-                          maxLines: 4,
-                          overflow: TextOverflow.ellipsis,
+                        child: Column(
+                          children: [
+                            Text(
+                              article.title,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                            ),
+                            Text(
+                              article.abstract,
+                              maxLines: 4,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
                         ),
                       ),
                   ],
