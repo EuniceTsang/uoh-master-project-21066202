@@ -1,18 +1,36 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:source_code/models/article.dart';
+import 'package:source_code/models/word.dart';
+import 'package:source_code/service/firebase_manager.dart';
 
 class HistoryCubit extends Cubit<HistoryState> {
-  HistoryCubit() : super(const HistoryState());
+  late final FirebaseManager firebaseManager;
 
-  Future<void> changeTab(int currentIndex) async {
-    if (currentIndex == state.currentTabIndex) {
-      return;
-    }
-    emit(HistoryState(currentTabIndex: currentIndex));
+  HistoryCubit(BuildContext context) : super(const HistoryState()) {
+    firebaseManager = context.read<FirebaseManager>();
+    loadHistory();
+  }
+
+  Future<void> loadHistory() async {
+    List<Word> wordHistory = await firebaseManager.getWordHistory();
+    List<Article> articleHistory = await firebaseManager.getArticleHistory();
+    emit(state.copyWith(wordHistory: wordHistory, articleHistory: articleHistory));
   }
 }
 
 class HistoryState {
-  final int currentTabIndex;
+  final List<Word> wordHistory;
+  final List<Article> articleHistory;
 
-  const HistoryState({this.currentTabIndex = 0});
+  const HistoryState({this.wordHistory = const [], this.articleHistory = const []});
+
+  HistoryState copyWith({
+    List<Word>? wordHistory,
+    List<Article>? articleHistory,
+  }) {
+    return HistoryState(
+        wordHistory: wordHistory ?? this.wordHistory,
+        articleHistory: articleHistory ?? this.articleHistory);
+  }
 }

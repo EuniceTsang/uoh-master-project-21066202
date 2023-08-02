@@ -18,7 +18,12 @@ class ReadingCubit extends Cubit<ReadingState> {
       maskType: EasyLoadingMaskType.black,
     );
     if (article != null) {
-      loadArticle(article);
+      loadArticle(article).then((value) {
+        if (state.body?.isNotEmpty == true) {
+          article.searchTime = DateTime.now();
+          firebaseManager.updateArticleHistory(article);
+        }
+      });
     }
   }
 
@@ -37,9 +42,9 @@ class ReadingCubit extends Cubit<ReadingState> {
 
   dom.Element? findSectionTag(dom.Element? element, String sectionName) {
     if (element != null) {
-      if (element.localName == 'section') {
-        print(element.attributes);
-      }
+      // if (element.localName == 'section') {
+      //   print(element.attributes);
+      // }
       if (element.localName == 'section' && element.attributes['name'] == sectionName) {
         return element;
       } else {
@@ -65,8 +70,11 @@ class ReadingCubit extends Cubit<ReadingState> {
   }
 
   void selectWord(String word) {
-    RegExp punctuationPattern = RegExp(r'[!@#\$%^&*(),.?":{}|<>]');
-    word = word.replaceAll(punctuationPattern, '');
+    RegExp alphabetPattern = RegExp(r'[^a-zA-Z]');
+    word = word.replaceAll(alphabetPattern, '').toLowerCase();
+    if (word.isEmpty) {
+      return;
+    }
     emit(state.copyWith(selectedWord: word, isSelectingWord: true));
   }
 

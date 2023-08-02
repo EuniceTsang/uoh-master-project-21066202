@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:source_code/bloc/history_cubit.dart';
+import 'package:source_code/models/article.dart';
+import 'package:source_code/models/word.dart';
 import 'package:source_code/utils/constants.dart';
 
 class HistoryScreen extends StatelessWidget {
@@ -10,26 +12,13 @@ class HistoryScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
         create: (BuildContext context) {
-          return HistoryCubit();
+          return HistoryCubit(context);
         },
         child: _HistoryScreenView());
   }
 }
 
 class _HistoryScreenView extends StatelessWidget {
-  List<String> testHistoryWords = [
-    "condemn",
-    "fetter",
-    "forge",
-    "odour",
-    "condemn",
-    "fetter",
-    "forge",
-    "odour"
-  ];
-  String testText =
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
-
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<HistoryCubit, HistoryState>(builder: (context, state) {
@@ -51,7 +40,7 @@ class _HistoryScreenView extends StatelessWidget {
               ),
               Expanded(
                 flex: 2,
-                child: _buildDictionaryList(),
+                child: _buildDictionaryList(context),
               ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -60,7 +49,7 @@ class _HistoryScreenView extends StatelessWidget {
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
               ),
-              Expanded(flex: 3, child: _buildReadingList()),
+              Expanded(flex: 3, child: _buildReadingList(context)),
             ],
           ),
         ),
@@ -68,16 +57,19 @@ class _HistoryScreenView extends StatelessWidget {
     });
   }
 
-  Widget _buildDictionaryList() {
+  Widget _buildDictionaryList(BuildContext context) {
+    HistoryCubit cubit = context.read<HistoryCubit>();
+    HistoryState state = cubit.state;
     return ListView.separated(
       // Disable scrolling
       shrinkWrap: true,
-      itemCount: testHistoryWords.length,
+      itemCount: state.wordHistory.length,
       itemBuilder: (BuildContext context, int index) {
+        Word word = state.wordHistory[index];
         return ListTile(
           dense: true,
           title: Text(
-            testHistoryWords[index],
+            word.word,
             style: TextStyle(fontSize: 15),
           ),
           trailing: Icon(
@@ -85,8 +77,7 @@ class _HistoryScreenView extends StatelessWidget {
             size: 15,
           ),
           onTap: () {
-            Navigator.pushNamed(context, Constants.routeDictionary,
-                arguments: testHistoryWords[index]);
+            Navigator.pushNamed(context, Constants.routeDictionary, arguments: word.word);
           },
         );
       },
@@ -97,22 +88,25 @@ class _HistoryScreenView extends StatelessWidget {
     );
   }
 
-  Widget _buildReadingList() {
+  Widget _buildReadingList(BuildContext context) {
+    HistoryCubit cubit = context.read<HistoryCubit>();
+    HistoryState state = cubit.state;
     return ListView.builder(
-        itemCount: 10,
+        itemCount: state.articleHistory.length,
         itemBuilder: (context, index) {
+          Article article = state.articleHistory[index];
           return Padding(
             padding: const EdgeInsets.all(8.0),
             child: Card(
                 child: InkWell(
               onTap: () {
-                Navigator.pushNamed(context, Constants.routeReading);
+                Navigator.pushNamed(context, Constants.routeReading, arguments: article);
               },
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Image.network(
-                    'https://www.nytimes.com/images/2023/07/09/arts/09Byrd-Anniversary-illo/09Byrd-Anniversary-illo-blog427.jpg',
+                    article.imageUrl.isEmpty ? Constants.placeholderPicUrl : article.imageUrl,
                     // Replace with your own image path
                     width: double.infinity,
                     height: 200,
@@ -121,7 +115,7 @@ class _HistoryScreenView extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
-                      testText,
+                      article.title,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -130,7 +124,7 @@ class _HistoryScreenView extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
-                      testText,
+                      article.abstract,
                       maxLines: 4,
                       overflow: TextOverflow.ellipsis,
                     ),

@@ -18,7 +18,7 @@ class HomeCubit extends Cubit<HomeState> {
   }
 
   Future<void> loadData() async {
-    List<Word> wordHistory = await firebaseManager.getWords();
+    List<Word> wordHistory = await firebaseManager.getWordHistory();
     List<Thread> threads = await firebaseManager.getThreadList();
     List<Article> articles = await apiManager.getPopularArticles();
     emit(state.copyWith(

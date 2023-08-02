@@ -26,7 +26,7 @@ class DictionaryCubit extends Cubit<DictionaryState> {
     emit(state.copyWith(isLoading: true));
     Word? wordData = await apiManager.searchWord(state.searchingWord.toLowerCase());
     if (wordData != null) {
-      await firebaseManager.updateWord(wordData);
+      await firebaseManager.updateWordHistory(wordData);
     }
     EasyLoading.dismiss();
     emit(state.copyWith(isLoading: false, wordData: wordData));

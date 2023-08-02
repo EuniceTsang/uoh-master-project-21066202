@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:source_code/models/article.dart';
 import 'package:source_code/models/comment.dart';
 import 'package:source_code/models/thread.dart';
 import 'package:source_code/models/user.dart';
@@ -309,7 +310,7 @@ class FirebaseManager {
 //endregion
 
 //region word
-  Future<void> updateWord(Word word) async {
+  Future<void> updateWordHistory(Word word) async {
     try {
       QuerySnapshot querySnapshot = await db
           .collection(WordFields.collection)
@@ -333,7 +334,7 @@ class FirebaseManager {
     }
   }
 
-  Future<List<Word>> getWords() async {
+  Future<List<Word>> getWordHistory() async {
     try {
       QuerySnapshot querySnapshot = await db
           .collection(WordFields.collection)
@@ -355,6 +356,59 @@ class FirebaseManager {
       }
     } catch (e) {
       print("getWords failed: $e");
+      return [];
+    }
+  }
+
+//endregion
+
+//region article
+  Future<void> updateArticleHistory(Article article) async {
+    try {
+      QuerySnapshot querySnapshot = await db
+          .collection(ArticleFields.collection)
+          .where(ArticleFields.url, isEqualTo: article.url)
+          .limit(1)
+          .get();
+      if (querySnapshot.docs.isEmpty) {
+        DocumentReference doc = await db.collection(ArticleFields.collection).add(article.toJson());
+        print('article created with ID: ${doc.id}');
+      } else {
+        DocumentReference articleRef = querySnapshot.docs.first.reference;
+        await articleRef.update(
+          {
+            ArticleFields.search_time: article.searchTime.toString(),
+          },
+        );
+        print('updated article');
+      }
+    } catch (e) {
+      print("updateArticle failed: $e");
+    }
+  }
+
+  Future<List<Article>> getArticleHistory() async {
+    try {
+      QuerySnapshot querySnapshot = await db
+          .collection(ArticleFields.collection)
+          .where(ArticleFields.user_id, isEqualTo: uid)
+          .orderBy(ArticleFields.search_time, descending: true)
+          .limit(10)
+          .get();
+      if (querySnapshot.docs.isNotEmpty) {
+        List<Article> articles = [];
+        for (var element in querySnapshot.docs) {
+          Map<String, dynamic> map = element.data() as Map<String, dynamic>;
+          print(map);
+          Article article = Article.fromJson(map);
+          articles.add(article);
+        }
+        return articles;
+      } else {
+        return [];
+      }
+    } catch (e) {
+      print("getArticles failed: $e");
       return [];
     }
   }

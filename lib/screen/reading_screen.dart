@@ -38,7 +38,7 @@ class _ReadingScreenView extends StatelessWidget {
                   cubit.clearSelectedWord();
                 })
             : null,
-        body: state.article == null || state.body == null
+        body: state.article == null || (state.body?.isEmpty ?? true)
             ? Center(
                 child: Text(
                 "Failed to load article",
