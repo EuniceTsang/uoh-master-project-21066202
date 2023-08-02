@@ -25,6 +25,12 @@ class Word {
   @JsonKey(ignore: true)
   Map<String, List<Definition>> posDefinitionMap;
 
+  @JsonKey(ignore: true)
+  String? shortDefinition;
+
+  @JsonKey(ignore: true)
+  String? shortDefinitionPos;
+
   Word({
     required this.word,
     required this.userId,
@@ -32,6 +38,8 @@ class Word {
     this.syllable = '',
     this.audioUrl,
     this.posDefinitionMap = const {},
+    this.shortDefinition,
+    this.shortDefinitionPos,
   });
 
   factory Word.fromJson(Map<String, dynamic> json) => _$WordFromJson(json);
@@ -42,6 +50,7 @@ class Word {
     String? _syllable;
     String? _audioUrl;
     Map<String, List<Definition>> _posDefinitionMap = {};
+    String? _shortDefinition, _shortDefinitionPos;
     json.forEach((wordJson) {
       try {
         String? _pos;
@@ -68,6 +77,13 @@ class Word {
               "https://media.merriam-webster.com/audio/prons/en/us/mp3/${getAudioSubdirectory(audioFileName)}/$audioFileName.mp3";
         }
         _pos = wordJson["fl"];
+        if (_shortDefinitionPos == null &&
+            _shortDefinition == null &&
+            wordJson.containsKey("shortdef")) {
+          _shortDefinitionPos = _pos;
+          List<String> shortdefList = wordJson["shortdef"].whereType<String>().toList();
+          _shortDefinition = shortdefList.join(", ").replaceAll("—", "");
+        }
         _posDefinitionMap[_pos!] = [];
         List<dynamic> definitions = wordJson["def"][0]["sseq"];
         definitions.forEach((definitionJson) {
@@ -101,7 +117,9 @@ class Word {
           definitions.add(definition);
           _posDefinitionMap[_pos] = definitions;
         });
-      } catch (e) {
+      } catch (e, stacktrace) {
+        print("Word.parseFromApi: $e");
+        print(stacktrace);
         return;
       }
     });
@@ -112,7 +130,9 @@ class Word {
           word: word,
           syllable: _syllable!,
           posDefinitionMap: _posDefinitionMap,
-          audioUrl: _audioUrl);
+          audioUrl: _audioUrl,
+          shortDefinitionPos: _shortDefinitionPos,
+          shortDefinition: _shortDefinition);
     } else {
       return null;
     }
@@ -132,8 +152,7 @@ class Word {
 
   @override
   String toString() {
-    return 'Word: $word\nSyllable: $syllable\nAudio URL: $audioUrl\n'
-        'Definitions: $posDefinitionMap';
+    return 'Word: $word, Syllable: $syllable, Audio URL: $audioUrl, Definitions: $posDefinitionMap';
   }
 }
 
@@ -148,7 +167,7 @@ class Definition {
 
   @override
   String toString() {
-    return 'Definition: $definition\nSentences: $sentences\n';
+    return 'Definition: $definition, Sentences: $sentences, ';
   }
 }
 

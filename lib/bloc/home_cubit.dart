@@ -21,10 +21,12 @@ class HomeCubit extends Cubit<HomeState> {
     List<Word> wordHistory = await firebaseManager.getWordHistory();
     List<Thread> threads = await firebaseManager.getThreadList();
     List<Article> articles = await apiManager.getPopularArticles();
+    Word? wordOfTheDay = await apiManager.getWordOfTheDay();
     emit(state.copyWith(
         wordHistory: wordHistory.take(4).toList(),
         threads: threads.take(3).toList(),
-        article: articles.isEmpty ? null : articles.first));
+        article: articles.isEmpty ? null : articles.first,
+        wordOfTheDay: wordOfTheDay));
   }
 
   void clearSearching() {
@@ -42,13 +44,16 @@ class HomeState {
   final List<Word> wordHistory;
   final List<Thread> threads;
   final Article? article;
+  final Word? wordOfTheDay;
 
-  const HomeState(
-      {this.isSearching = false,
-      this.searchingWord = '',
-      this.wordHistory = const [],
-      this.threads = const [],
-      this.article});
+  const HomeState({
+    this.isSearching = false,
+    this.searchingWord = '',
+    this.wordHistory = const [],
+    this.threads = const [],
+    this.article,
+    this.wordOfTheDay,
+  });
 
   HomeState copyWith({
     bool? isSearching,
@@ -56,6 +61,7 @@ class HomeState {
     List<Word>? wordHistory,
     List<Thread>? threads,
     Article? article,
+    Word? wordOfTheDay,
   }) {
     return HomeState(
       isSearching: isSearching ?? this.isSearching,
@@ -63,6 +69,7 @@ class HomeState {
       wordHistory: wordHistory ?? this.wordHistory,
       threads: threads ?? this.threads,
       article: article ?? this.article,
+      wordOfTheDay: wordOfTheDay ?? this.wordOfTheDay,
     );
   }
 }

@@ -28,45 +28,9 @@ class ReadingCubit extends Cubit<ReadingState> {
   }
 
   Future<void> loadArticle(Article article) async {
-    String? htmlContent = await apiManager.getHtml(article.url);
-    dom.Document document = parse(htmlContent);
-    dom.Element? articleBody = findSectionTag(document.body, "articleBody");
-    String? articleBodyHtml = articleBody?.outerHtml;
-    String? body;
-    if (articleBodyHtml != null) {
-      body = extractParagraphText(articleBodyHtml);
-    }
+    String? body = await apiManager.getArticleBody(article);
     EasyLoading.dismiss();
     emit(state.copyWith(article: article, body: body));
-  }
-
-  dom.Element? findSectionTag(dom.Element? element, String sectionName) {
-    if (element != null) {
-      // if (element.localName == 'section') {
-      //   print(element.attributes);
-      // }
-      if (element.localName == 'section' && element.attributes['name'] == sectionName) {
-        return element;
-      } else {
-        for (var child in element.children) {
-          var foundTag = findSectionTag(child, sectionName);
-          if (foundTag != null) {
-            return foundTag;
-          }
-        }
-      }
-    }
-    return null;
-  }
-
-  String extractParagraphText(String html) {
-    dom.Document document = parse(html);
-    List<dom.Element> paragraphs = document.getElementsByTagName('p');
-    String result = '';
-    for (dom.Element paragraph in paragraphs) {
-      result += "${paragraph.text}\n";
-    }
-    return result;
   }
 
   void selectWord(String word) {

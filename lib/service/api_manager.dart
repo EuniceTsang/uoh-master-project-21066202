@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:source_code/models/article.dart';
 import 'package:source_code/models/word.dart';
+import 'package:html/parser.dart' show parse;
+import 'package:html/dom.dart' as dom;
 
 class ApiManager {
   late final Dio dio;
@@ -8,6 +10,7 @@ class ApiManager {
   static const dictionaryUrl =
       'https://www.dictionaryapi.com/api/v3/references/learners/json/may?key=2f75820c-65b7-4a16-94b9-71bdbd814b96';
   static const articleApiKey = '6Xx7xWCXQN8FwJXEATFGdJaRXeBFAfUY';
+  static const wordOfTheDayUrl = "https://www.merriam-webster.com/word-of-the-day";
 
   ApiManager() {
     dio = Dio();
@@ -96,5 +99,66 @@ class ApiManager {
       print('Stacktrace: ' + stacktrace.toString());
     }
     return articles;
+  }
+
+  Future<String?> getArticleBody(Article article) async {
+    String? body;
+    try {
+      String? htmlContent = await getHtml(article.url);
+      dom.Document document = parse(htmlContent);
+      dom.Element? articleBody = findTag(document.body, "section", "name", "articleBody");
+      String? articleBodyHtml = articleBody?.outerHtml;
+      if (articleBodyHtml != null) {
+        body = extractParagraphText(articleBodyHtml);
+      }
+    } catch (e, stacktrace) {
+      print('getArticleBody Exception: ' + e.toString());
+      print('Stacktrace: ' + stacktrace.toString());
+    }
+    return body;
+  }
+
+  dom.Element? findTag(
+      dom.Element? element, String tagName, String attributeName, String attributeValue) {
+    if (element != null) {
+      if (element.localName == tagName && element.attributes[attributeName] == attributeValue) {
+        return element;
+      } else {
+        for (var child in element.children) {
+          var foundTag = findTag(child, tagName, attributeName, attributeValue);
+          if (foundTag != null) {
+            return foundTag;
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  String extractParagraphText(String html) {
+    dom.Document document = parse(html);
+    List<dom.Element> paragraphs = document.getElementsByTagName('p');
+    String result = '';
+    for (dom.Element paragraph in paragraphs) {
+      result += "${paragraph.text}\n";
+    }
+    return result;
+  }
+
+  Future<Word?> getWordOfTheDay() async {
+    try {
+      String? htmlContent = await getHtml(wordOfTheDayUrl);
+      dom.Document document = parse(htmlContent);
+      dom.Element? wordOfTheDayElement = findTag(document.body, "h2", "class", "word-header-txt");
+      String? wordOfTheDayString = wordOfTheDayElement?.text;
+      if (wordOfTheDayString != null) {
+        print("word of the day: $wordOfTheDayString");
+        return await searchWord(wordOfTheDayString);
+      }
+    } catch (e, stacktrace) {
+      print('getArticleBody Exception: ' + e.toString());
+      print('Stacktrace: ' + stacktrace.toString());
+    }
+    return null;
   }
 }

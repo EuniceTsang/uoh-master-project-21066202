@@ -110,9 +110,6 @@ class _HomeScreenView extends StatelessWidget {
     );
   }
 
-  String testText =
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
-
   Widget _buildProfileBlock(BuildContext context) {
     return Card(
         child: Padding(
@@ -170,6 +167,9 @@ class _HomeScreenView extends StatelessWidget {
   }
 
   Widget _buildWordOfTheDayBlock(BuildContext context) {
+    HomeCubit cubit = context.read<HomeCubit>();
+    HomeState state = cubit.state;
+    Word? wordOfTheDay = state.wordOfTheDay;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0),
       child: Column(
@@ -212,29 +212,39 @@ class _HomeScreenView extends StatelessWidget {
             ),
           ),
           Card(
-              child: Padding(
-            padding: const EdgeInsets.all(10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start, // Align children to the left
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      "loquacious",
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Text("adjective"),
-                  ],
-                ),
-                Text("lo.qua.cious"),
-                SizedBox(height: 10),
-                Text("full of excessive talk"),
-              ],
-            ),
-          ))
+              child: wordOfTheDay == null
+                  ? Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Text(
+                          "Cannot retrieve word of the day",
+                          style: TextStyle(fontSize: 15),
+                        ),
+                      ),
+                    )
+                  : Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start, // Align children to the left
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                wordOfTheDay.word,
+                                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                              ),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              Text(wordOfTheDay.shortDefinitionPos ?? ''),
+                            ],
+                          ),
+                          Text(wordOfTheDay.syllable),
+                          SizedBox(height: 10),
+                          Text(wordOfTheDay.shortDefinition ?? ''),
+                        ],
+                      ),
+                    ))
         ],
       ),
     );
