@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:focus_detector/focus_detector.dart';
 import 'package:source_code/bloc/base_navigation_cubit.dart';
 import 'package:source_code/bloc/home_cubit.dart';
 import 'package:source_code/models/article.dart';
@@ -31,19 +33,35 @@ class _HomeScreenView extends StatelessWidget {
     return BlocBuilder<HomeCubit, HomeState>(builder: (context, state) {
       HomeCubit cubit = context.read<HomeCubit>();
       HomeState state = cubit.state;
-      return Scaffold(
-        appBar: _buildAppBar(context),
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              children: [
-                _buildProfileBlock(context),
-                _buildWordOfTheDayBlock(context),
-                _buildHistoryBlock(context),
-                _buildRecommendReadingBlock(context),
-                _buildLatestTopicBlock(context)
-              ],
+      return FocusDetector(
+        onFocusLost: () {
+          cubit.needReload = true;
+        },
+        onFocusGained: () {
+          if (cubit.needReload) {
+            EasyLoading.show(
+              maskType: EasyLoadingMaskType.black,
+            );
+            cubit.loadData().then((value) {
+              cubit.needReload = false;
+              EasyLoading.dismiss();
+            });
+          }
+        },
+        child: Scaffold(
+          appBar: _buildAppBar(context),
+          body: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                children: [
+                  _buildProfileBlock(context),
+                  _buildWordOfTheDayBlock(context),
+                  _buildHistoryBlock(context),
+                  _buildRecommendReadingBlock(context),
+                  _buildLatestTopicBlock(context)
+                ],
+              ),
             ),
           ),
         ),
@@ -353,57 +371,54 @@ class _HomeScreenView extends StatelessWidget {
               ],
             ),
           ),
-          article == null
-              ? Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Text(
-                      "Failed to load article",
-                      style: TextStyle(fontSize: 15),
-                    ),
-                  ),
-                )
-              : InkWell(
-                  onTap: () {
-                    Navigator.pushNamed(context, Constants.routeReading);
-                  },
-                  child: Card(
-                      child: InkWell(
-                        onTap: (){
-                          Navigator.pushNamed(context, Constants.routeReading);
-                        },
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Image.network(
-                              article.imageUrl.isEmpty ? Constants.placeholderPicUrl : article.imageUrl,
-                              // Replace with your own image path
-                              width: double.infinity,
-                              height: 200,
-                              fit: BoxFit.fitWidth, // Adjusts the image within the card
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Column(
-                                children: [
-                                  Text(
-                                    article.title,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                                  ),
-                                  Text(
-                                    article.abstract,
-                                    maxLines: 4,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
+          Card(
+              child: article == null
+                  ? Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Text(
+                          "Failed to load article",
+                          style: TextStyle(fontSize: 15),
                         ),
-                      )),
-                )
+                      ),
+                    )
+                  : InkWell(
+                      onTap: () {
+                        Navigator.pushNamed(context, Constants.routeReading, arguments: article);
+                      },
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Image.network(
+                            article.imageUrl.isEmpty
+                                ? Constants.placeholderPicUrl
+                                : article.imageUrl,
+                            // Replace with your own image path
+                            width: double.infinity,
+                            height: 200,
+                            fit: BoxFit.fitWidth, // Adjusts the image within the card
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              children: [
+                                Text(
+                                  article.title,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                  article.abstract,
+                                  maxLines: 4,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ))
         ],
       ),
     );
@@ -515,7 +530,8 @@ class _HomeScreenView extends StatelessWidget {
                             ),
                           ),
                           onTap: () {
-                            Navigator.pushNamed(context, Constants.routeForumThread);
+                            Navigator.pushNamed(context, Constants.routeForumThread,
+                                arguments: thread);
                           },
                         );
                       },

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:focus_detector/focus_detector.dart';
 import 'package:source_code/bloc/forum_list_cubit.dart';
 import 'package:source_code/models/thread.dart';
@@ -37,8 +36,15 @@ class _ForumListScreenView extends StatelessWidget {
       ForumListCubit cubit = context.read<ForumListCubit>();
       ForumListState state = cubit.state;
       return FocusDetector(
+        onFocusLost: () {
+          cubit.needReload = true;
+        },
         onFocusGained: () {
-          cubit.loadForumData();
+          if (cubit.needReload) {
+            cubit.loadForumData().then((value){
+              cubit.needReload = false;
+            });
+          }
         },
         child: DefaultTabController(
           length: 2,

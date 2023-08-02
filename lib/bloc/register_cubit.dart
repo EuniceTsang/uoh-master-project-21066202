@@ -23,7 +23,9 @@ class RegisterCubit extends Cubit<RegisterState> {
       return;
     }
     final firebaseManager = context.read<FirebaseManager>();
-    EasyLoading.show();
+    EasyLoading.show(
+      maskType: EasyLoadingMaskType.black,
+    );
     try {
       await firebaseManager.userRegister(state.email, state.email, state.password);
       EasyLoading.dismiss();

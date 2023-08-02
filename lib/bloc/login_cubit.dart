@@ -16,8 +16,9 @@ class LoginCubit extends Cubit<LoginState> {
     }
     final firebaseManager = context.read<FirebaseManager>();
     final repository = context.read<Repository>();
-    EasyLoading.show();
-
+    EasyLoading.show(
+      maskType: EasyLoadingMaskType.black,
+    );
     try {
       await firebaseManager.userLogin(state.email, state.password);
       AppUser? user = await firebaseManager.getUserData(FirebaseManager().uid);

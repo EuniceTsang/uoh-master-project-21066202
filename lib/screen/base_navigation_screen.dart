@@ -23,12 +23,12 @@ class BaseNavigationScreen extends StatelessWidget {
 class _BaseNavigationScreenView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    const List<Tab> _tabs = [
-      Tab('Home', Icons.home_filled, HomeScreen()),
-      Tab('Translation', Icons.translate, TranslationScreen()),
-      Tab('Reading', Icons.library_books, ReadingListScreen()),
-      Tab('Forum', Icons.forum, ForumListScreen()),
-      Tab('Account', Icons.account_circle_outlined, AccountScreen()),
+    final List<Tab> _tabs = [
+      const Tab('Home', Icons.home_filled, HomeScreen()),
+      const Tab('Translation', Icons.translate, TranslationScreen()),
+      const Tab('Reading', Icons.library_books,ReadingListScreen()),
+      const Tab('Forum', Icons.forum, ForumListScreen()),
+      const Tab('Account', Icons.account_circle_outlined, AccountScreen()),
     ];
 
     return BlocBuilder<BaseNavigationCubit, BaseNavigationState>(builder: (context, state) {

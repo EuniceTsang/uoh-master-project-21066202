@@ -1,14 +1,67 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:source_code/models/article.dart';
+import 'package:source_code/service/api_manager.dart';
+import 'package:source_code/service/firebase_manager.dart';
+import 'package:html/parser.dart' show parse;
+import 'package:html/dom.dart' as dom;
 
 class ReadingCubit extends Cubit<ReadingState> {
-  String url =
-      'https://www.nytimes.com/images/2023/07/09/arts/09Byrd-Anniversary-illo/09Byrd-Anniversary-illo-blog427.jpg';
-  String testText =
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\n";
+  late final FirebaseManager firebaseManager;
+  late final ApiManager apiManager;
 
-  ReadingCubit() : super(const ReadingState()) {
-    //load data
-    emit(state.copyWith(imageUrl: url, title: testText.substring(0, 20), body: testText * 10));
+  ReadingCubit(BuildContext context, Article? article) : super(const ReadingState()) {
+    apiManager = context.read<ApiManager>();
+    firebaseManager = context.read<FirebaseManager>();
+    EasyLoading.show(
+      maskType: EasyLoadingMaskType.black,
+    );
+    if (article != null) {
+      loadArticle(article);
+    }
+  }
+
+  Future<void> loadArticle(Article article) async {
+    String? htmlContent = await apiManager.getHtml(article.url);
+    dom.Document document = parse(htmlContent);
+    dom.Element? articleBody = findSectionTag(document.body, "articleBody");
+    String? articleBodyHtml = articleBody?.outerHtml;
+    String? body;
+    if (articleBodyHtml != null) {
+      body = extractParagraphText(articleBodyHtml);
+    }
+    EasyLoading.dismiss();
+    emit(state.copyWith(article: article, body: body));
+  }
+
+  dom.Element? findSectionTag(dom.Element? element, String sectionName) {
+    if (element != null) {
+      if (element.localName == 'section') {
+        print(element.attributes);
+      }
+      if (element.localName == 'section' && element.attributes['name'] == sectionName) {
+        return element;
+      } else {
+        for (var child in element.children) {
+          var foundTag = findSectionTag(child, sectionName);
+          if (foundTag != null) {
+            return foundTag;
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  String extractParagraphText(String html) {
+    dom.Document document = parse(html);
+    List<dom.Element> paragraphs = document.getElementsByTagName('p');
+    String result = '';
+    for (dom.Element paragraph in paragraphs) {
+      result += "${paragraph.text}\n";
+    }
+    return result;
   }
 
   void selectWord(String word) {
@@ -23,29 +76,21 @@ class ReadingCubit extends Cubit<ReadingState> {
 }
 
 class ReadingState {
-  final String imageUrl;
-  final String title;
-  final String body;
+  final Article? article;
+  final String? body;
   final String? selectedWord;
   final bool isSelectingWord;
 
-  const ReadingState(
-      {this.imageUrl = '',
-      this.title = '',
-      this.body = '',
-      this.selectedWord,
-      this.isSelectingWord = false});
+  const ReadingState({this.article, this.body, this.selectedWord, this.isSelectingWord = false});
 
   ReadingState copyWith({
-    String? imageUrl,
-    String? title,
+    Article? article,
     String? body,
     String? selectedWord,
     bool? isSelectingWord,
   }) {
     return ReadingState(
-      imageUrl: imageUrl ?? this.imageUrl,
-      title: title ?? this.title,
+      article: article ?? this.article,
       body: body ?? this.body,
       selectedWord: selectedWord ?? this.selectedWord,
       isSelectingWord: isSelectingWord ?? this.isSelectingWord,

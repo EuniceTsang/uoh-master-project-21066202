@@ -28,9 +28,6 @@ class Article {
   @JsonKey(name: ArticleFields.original)
   String? original;
 
-  @JsonKey(ignore: true)
-  String fullText;
-
   Article({
     required this.url,
     required this.imageUrl,
@@ -38,7 +35,6 @@ class Article {
     required this.searchTime,
     required this.userId,
     required this.abstract,
-    this.fullText = '',
     this.original,
   });
 
@@ -117,7 +113,7 @@ class Article {
   @override
   String toString() {
     return 'Article{url: $url, imageUrl: $imageUrl, title: $title, searchTime: $searchTime, '
-        'userId: $userId, abstract: $abstract, original: $original, fullText: $fullText}';
+        'userId: $userId, abstract: $abstract, original: $original}';
   }
 }
 

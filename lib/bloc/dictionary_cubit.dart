@@ -20,7 +20,9 @@ class DictionaryCubit extends Cubit<DictionaryState> {
   }
 
   Future<void> performSearch() async {
-    EasyLoading.show();
+    EasyLoading.show(
+      maskType: EasyLoadingMaskType.black,
+    );
     emit(state.copyWith(isLoading: true));
     Word? wordData = await apiManager.searchWord(state.searchingWord.toLowerCase());
     if (wordData != null) {

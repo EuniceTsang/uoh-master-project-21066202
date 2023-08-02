@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:source_code/models/user.dart';
 import 'package:source_code/service/firebase_manager.dart';
 import 'package:source_code/service/repository.dart';

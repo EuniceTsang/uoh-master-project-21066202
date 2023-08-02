@@ -20,6 +20,7 @@ class ReadingListScreen extends StatelessWidget {
 class _ReadingListScreenView extends StatelessWidget {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
+  ScrollController _scrollController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +30,7 @@ class _ReadingListScreenView extends StatelessWidget {
       return Scaffold(
         appBar: _buildAppBar(context),
         body: ListView.builder(
+            controller: _scrollController,
             itemCount: state.articles.length,
             itemBuilder: (context, index) {
               Article article = state.articles[index];
@@ -37,7 +39,7 @@ class _ReadingListScreenView extends StatelessWidget {
                 child: Card(
                     child: InkWell(
                       onTap: (){
-                        Navigator.pushNamed(context, Constants.routeReading);
+                        Navigator.pushNamed(context, Constants.routeReading, arguments: article);
                       },
                       child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -85,7 +87,9 @@ class _ReadingListScreenView extends StatelessWidget {
           cubit.searchingWord(value);
         },
         onSubmitted: (value) {
-          cubit.performSearch();
+          cubit.getArticles(keyword: state.searchingWord).then((value) {
+            _scrollController.jumpTo(0.0);
+          });
         },
         focusNode: _searchFocusNode,
         autofocus: false,

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:source_code/models/thread.dart';
 import 'package:source_code/service/firebase_manager.dart';
 import 'package:source_code/service/repository.dart';
@@ -9,6 +10,7 @@ import 'package:uuid/uuid.dart';
 class ForumListCubit extends Cubit<ForumListState> {
   late FirebaseManager firebaseManager;
   late Repository repository;
+  bool needReload = false;
 
   ForumListCubit(BuildContext context) : super(const ForumListState()) {
     //load data
@@ -17,9 +19,13 @@ class ForumListCubit extends Cubit<ForumListState> {
     loadForumData();
   }
 
-  Future<void> loadForumData() async{
+  Future<void> loadForumData() async {
+    EasyLoading.show(
+      maskType: EasyLoadingMaskType.black,
+    );
     List<Thread> threadList = await firebaseManager.getThreadList();
     repository.updateThread(threadList);
+    EasyLoading.dismiss();
     emit(state.copyWith(newThreads: repository.allThreads, myThreads: repository.myThreads));
   }
 

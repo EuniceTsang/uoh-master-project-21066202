@@ -16,6 +16,9 @@ class ReadingListCubit extends Cubit<ReadingListState> {
   }
 
   Future<void> getArticles({String? keyword}) async {
+    EasyLoading.show(
+      maskType: EasyLoadingMaskType.black,
+    );
     List<Article> articles = [];
     if (keyword == null) {
       articles = await apiManager.getPopularArticles();
@@ -34,11 +37,6 @@ class ReadingListCubit extends Cubit<ReadingListState> {
 
   void searchingWord(String word) {
     emit(state.copyWith(isSearching: word.isNotEmpty, searchingWord: word));
-  }
-
-  void performSearch() {
-    EasyLoading.show();
-    getArticles(keyword: state.searchingWord);
   }
 }
 

@@ -9,6 +9,7 @@ import 'package:source_code/service/firebase_manager.dart';
 class HomeCubit extends Cubit<HomeState> {
   late FirebaseManager firebaseManager;
   late ApiManager apiManager;
+  bool needReload = false;
 
   HomeCubit(BuildContext context) : super(const HomeState()) {
     firebaseManager = context.read<FirebaseManager>();
