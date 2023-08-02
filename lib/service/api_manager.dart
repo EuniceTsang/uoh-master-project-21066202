@@ -1,3 +1,6 @@
+import 'dart:collection';
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:source_code/models/article.dart';
 import 'package:source_code/models/word.dart';
@@ -7,10 +10,7 @@ import 'package:html/dom.dart' as dom;
 class ApiManager {
   late final Dio dio;
   static const dictionaryApiKey = '2f75820c-65b7-4a16-94b9-71bdbd814b96';
-  static const dictionaryUrl =
-      'https://www.dictionaryapi.com/api/v3/references/learners/json/may?key=2f75820c-65b7-4a16-94b9-71bdbd814b96';
   static const articleApiKey = '6Xx7xWCXQN8FwJXEATFGdJaRXeBFAfUY';
-  static const wordOfTheDayUrl = "https://www.merriam-webster.com/word-of-the-day";
 
   ApiManager() {
     dio = Dio();
@@ -147,7 +147,7 @@ class ApiManager {
 
   Future<Word?> getWordOfTheDay() async {
     try {
-      String? htmlContent = await getHtml(wordOfTheDayUrl);
+      String? htmlContent = await getHtml("https://www.merriam-webster.com/word-of-the-day");
       dom.Document document = parse(htmlContent);
       dom.Element? wordOfTheDayElement = findTag(document.body, "h2", "class", "word-header-txt");
       String? wordOfTheDayString = wordOfTheDayElement?.text;
@@ -160,5 +160,68 @@ class ApiManager {
       print('Stacktrace: ' + stacktrace.toString());
     }
     return null;
+  }
+
+  Future<LinkedHashMap<String, String>> getLanguageList() async {
+    LinkedHashMap<String, String> languageMap = LinkedHashMap();
+    try {
+      final response =
+          await dio.get("https://api.cognitive.microsofttranslator.com/languages?api-version=3.0");
+      if (response.statusCode == 200) {
+        Map<String, dynamic> json = response.data['translation'];
+        json.forEach((key, value) {
+          String name = value["name"];
+          languageMap[name] = key;
+        });
+      } else {
+        print("${response.statusCode}, ${response.data}");
+      }
+    } catch (e, stacktrace) {
+      print('getLanguageList Exception: ' + e.toString());
+      print('Stacktrace: ' + stacktrace.toString());
+    }
+    print(languageMap);
+    return languageMap;
+  }
+
+  Future<Map<String, String>> translate(String text, {String? languageCode}) async {
+    Map<String, String> map = {};
+    try {
+      String url = "https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&to=en";
+      if (languageCode != null && languageCode.isNotEmpty) {
+        url += "&from=$languageCode";
+      }
+      var data = [
+        {"Text": text}
+      ];
+      Options options = Options(
+        contentType: Headers.jsonContentType,
+        headers: {
+          'Content-type': 'application/json',
+          'Ocp-Apim-Subscription-Key': '92f53b5d87834dd399c6ab294d8f5cf7',
+          'Ocp-Apim-Subscription-Region': 'uksouth'
+        },
+      );
+      dio.interceptors.add(LogInterceptor(requestBody: true));
+      final response = await dio.post(url, data: jsonEncode(data), options: options);
+      if (response.statusCode == 200) {
+        Map<String, dynamic> json = response.data[0];
+        if (json.containsKey("detectedLanguage")) {
+          String language = json["detectedLanguage"]["language"];
+          map["detectedLanguage"] = language;
+        }
+        if (json.containsKey("translations")) {
+          String result = json["translations"][0]["text"];
+          map["translations"] = result;
+        }
+      } else {
+        print("${response.statusCode}, ${response.data}");
+      }
+    } catch (e, stacktrace) {
+      print('translate Exception: ' + e.toString());
+      print('Stacktrace: ' + stacktrace.toString());
+    }
+    print(map);
+    return map;
   }
 }

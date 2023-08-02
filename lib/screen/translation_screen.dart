@@ -9,7 +9,7 @@ class TranslationScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
         create: (BuildContext context) {
-          return TranslationCubit();
+          return TranslationCubit(context);
         },
         child: _TranslationScreenView());
   }
@@ -43,7 +43,10 @@ class _TranslationScreenView extends StatelessWidget {
                         child: TextButton(
                           onPressed: () => _showLanguageDialog(context),
                           child: Text(
-                            state.language ?? 'Detect Language',
+                            state.language == 'Detect Language' &&
+                                    state.detectedLanguage.isNotEmpty
+                                ? "${state.detectedLanguage} - detected"
+                                : state.language,
                             style: TextStyle(color: Colors.black, fontSize: 15),
                           ),
                         ),
@@ -69,13 +72,17 @@ class _TranslationScreenView extends StatelessWidget {
                     children: [
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 16.0),
-                        child: TextField(
-                          maxLines: 10, // Allow multi-line input
-                          onChanged: (value) => cubit.updateInputText(value),
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                            hintText: 'Type text to translate...',
-                          ),
+                        child: Column(
+                          children: [
+                            TextField(
+                              maxLines: 10, // Allow multi-line input
+                              onChanged: (value) => cubit.updateInputText(value),
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(),
+                                hintText: 'Type text to translate...',
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       ElevatedButton(
@@ -133,19 +140,23 @@ class _TranslationScreenView extends StatelessWidget {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Select Language'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: _languages.map((language) {
-              return RadioListTile(
-                title: Text(language),
-                value: language,
-                groupValue: state.language,
-                onChanged: (value) {
-                  cubit.changeLanguage(value ?? '');
-                  Navigator.pop(context); // Close the dialog after selection
-                },
-              );
-            }).toList(),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: state.languageMap.keys.map((languageKey) {
+                return RadioListTile(
+                  title: Text(languageKey),
+                  value: languageKey,
+                  groupValue: state.language,
+                  onChanged: (value) {
+                    if (value != null) {
+                      cubit.changeLanguage(value);
+                      Navigator.pop(context); // Close the dialog after selection
+                    }
+                  },
+                );
+              }).toList(),
+            ),
           ),
         );
       },
