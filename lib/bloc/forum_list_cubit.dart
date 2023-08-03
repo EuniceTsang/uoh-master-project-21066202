@@ -16,7 +16,6 @@ class ForumListCubit extends Cubit<ForumListState> {
   }
 
   Future<void> loadForumData() async {
-    emit(state.copyWith(loading: true));
     List<Thread> allThreadList = await firebaseManager.getThreadList();
     List<Thread> myThreadList =
         allThreadList.where((element) => element.userId == Preferences().uid).toList();

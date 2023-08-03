@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:source_code/models/comment.dart';
 import 'package:source_code/models/thread.dart';
 import 'package:source_code/service/firebase_manager.dart';
-import 'package:source_code/service/repository.dart';
 import 'package:source_code/utils/preference.dart';
 import 'package:uuid/uuid.dart';
 
@@ -25,7 +24,7 @@ class ForumThreadCubit extends Cubit<ForumThreadState> {
 
   Future<void> loadThreadData() async {
     List<Comment> comments = await firebaseManager.getComments(thread!.threadId);
-    emit(state.copyWith(thread: thread, comments: comments));
+    emit(state.copyWith(thread: thread, comments: comments, loading: false));
   }
 
   void toggleLikeThread() {
@@ -68,13 +67,15 @@ class ForumThreadCubit extends Cubit<ForumThreadState> {
 class ForumThreadState {
   Thread thread;
   List<Comment> comments;
+  final bool loading;
 
-  ForumThreadState({required this.thread, this.comments = const []});
+  ForumThreadState({required this.thread, this.comments = const [], this.loading = true});
 
-  ForumThreadState copyWith({Thread? thread, List<Comment>? comments}) {
+  ForumThreadState copyWith({Thread? thread, List<Comment>? comments, bool? loading}) {
     return ForumThreadState(
       thread: thread ?? this.thread,
       comments: comments ?? this.comments,
+      loading: loading ?? this.loading,
     );
   }
 }

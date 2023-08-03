@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:source_code/bloc/forum_thread_cubit.dart';
 import 'package:source_code/models/comment.dart';
 import 'package:source_code/models/thread.dart';
@@ -34,29 +35,43 @@ class _ForumThreadScreenView extends StatelessWidget {
               _showAddCommentBottomSheet(context);
             },
             label: Text("Add a comment")),
-        body: RefreshIndicator(
-          onRefresh: () => cubit.loadThreadData(),
-          child: SingleChildScrollView(
-            physics: AlwaysScrollableScrollPhysics(),
-            child: Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildThreadItem(context),
-                  ...List.generate(state.comments.length, (index) {
-                    return _buildCommentItem(context, state.comments[index]);
-                  }),
-                  SizedBox(
-                    height: 100,
-                  )
-                ],
+        body: state.loading
+            ? _buildLoadingList()
+            : RefreshIndicator(
+                onRefresh: () => cubit.loadThreadData(),
+                child: SingleChildScrollView(
+                  physics: AlwaysScrollableScrollPhysics(),
+                  child: Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildThreadItem(context),
+                        ...List.generate(state.comments.length, (index) {
+                          return _buildCommentItem(context, state.comments[index]);
+                        }),
+                        SizedBox(
+                          height: 100,
+                        )
+                      ],
+                    ),
+                  ),
+                ),
               ),
-            ),
-          ),
-        ),
       );
     });
+  }
+
+  Widget _buildLoadingList() {
+    return ListView.builder(
+        itemCount: 10,
+        itemBuilder: (context, index) {
+          return Shimmer.fromColors(
+              baseColor: Colors.grey.shade300,
+              highlightColor: Colors.grey.shade100,
+              child:
+                  Card(child: Container(color: Colors.white, width: double.infinity, height: 100)));
+        });
   }
 
   Widget _buildThreadItem(BuildContext context) {

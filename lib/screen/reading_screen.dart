@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:source_code/bloc/reading_cubit.dart';
 import 'package:source_code/models/article.dart';
 import 'package:source_code/utils/constants.dart';
@@ -41,7 +42,7 @@ class _ReadingScreenView extends StatelessWidget {
         body: state.article == null || (state.body?.isEmpty ?? true)
             ? Center(
                 child: Text(
-                "Failed to load article",
+                EasyLoading.isShow ? "" : "Failed to load article",
                 style: TextStyle(color: Colors.grey, fontSize: 20),
               ))
             : SingleChildScrollView(

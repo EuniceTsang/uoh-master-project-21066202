@@ -15,22 +15,23 @@ class HistoryCubit extends Cubit<HistoryState> {
   Future<void> loadHistory() async {
     List<Word> wordHistory = await firebaseManager.getWordHistory();
     List<Article> articleHistory = await firebaseManager.getArticleHistory();
-    emit(state.copyWith(wordHistory: wordHistory, articleHistory: articleHistory));
+    emit(state.copyWith(wordHistory: wordHistory, articleHistory: articleHistory, loading: false));
   }
 }
 
 class HistoryState {
   final List<Word> wordHistory;
   final List<Article> articleHistory;
+  final bool loading;
 
-  const HistoryState({this.wordHistory = const [], this.articleHistory = const []});
+  const HistoryState(
+      {this.wordHistory = const [], this.articleHistory = const [], this.loading = true});
 
-  HistoryState copyWith({
-    List<Word>? wordHistory,
-    List<Article>? articleHistory,
-  }) {
+  HistoryState copyWith({List<Word>? wordHistory, List<Article>? articleHistory, bool? loading}) {
     return HistoryState(
-        wordHistory: wordHistory ?? this.wordHistory,
-        articleHistory: articleHistory ?? this.articleHistory);
+      wordHistory: wordHistory ?? this.wordHistory,
+      articleHistory: articleHistory ?? this.articleHistory,
+      loading: loading ?? this.loading,
+    );
   }
 }
