@@ -2,23 +2,19 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:source_code/models/user.dart';
 import 'package:source_code/service/firebase_manager.dart';
-import 'package:source_code/service/repository.dart';
 import 'package:source_code/utils/constants.dart';
 import 'package:source_code/utils/preference.dart';
 
 class AccountCubit extends Cubit<AccountState> {
-  late Repository repository;
   late FirebaseManager firebaseManager;
 
   AccountCubit(BuildContext context) : super(const AccountState()) {
-    repository = context.read<Repository>();
     firebaseManager = context.read<FirebaseManager>();
     loadUserData();
   }
 
-  void loadUserData() {
-    AppUser? user = repository.user;
-    print(user?.targetTime ?? 'no');
+  void loadUserData() async {
+    AppUser? user = await firebaseManager.getUserData(FirebaseManager().uid);
     emit(state.copyWith(targetTime: user?.targetTime, targetReading: user?.targetReading));
   }
 
@@ -26,7 +22,6 @@ class AccountCubit extends Cubit<AccountState> {
     try {
       await firebaseManager.logout();
       await Preferences().clearPrefForLoggedOut();
-      repository.reset();
       Navigator.pushReplacementNamed(context, Constants.routeLogin);
     } on CustomException catch (e) {
       print(e.message);
@@ -36,8 +31,7 @@ class AccountCubit extends Cubit<AccountState> {
   void clearTargetReading() async {
     try {
       await firebaseManager.updateTargetReading(null);
-      repository.user!.targetReading = null;
-      loadUserData();
+      emit(state.copyWith(targetTime: null, targetReading: state.targetReading));
     } on CustomException catch (e) {
       print(e.message);
     }
@@ -46,18 +40,16 @@ class AccountCubit extends Cubit<AccountState> {
   void clearTargetTime() async {
     try {
       await firebaseManager.updateTargetReadingTime(null);
-      repository.user!.targetTime = null;
-      loadUserData();
+      emit(state.copyWith(targetTime: state.targetTime, targetReading: null));
     } on CustomException catch (e) {
       print(e.message);
     }
   }
 
-  void changeTargetReading(int value) async {
+  void changeTargetReading(int targetReading) async {
     try {
-      await firebaseManager.updateTargetReading(value);
-      repository.user!.targetReading = value;
-      loadUserData();
+      await firebaseManager.updateTargetReading(targetReading);
+      emit(state.copyWith(targetTime: state.targetTime, targetReading: targetReading));
     } on CustomException catch (e) {
       print(e.message);
     }
@@ -66,8 +58,7 @@ class AccountCubit extends Cubit<AccountState> {
   void changeTargetTime(String targetTime) async {
     try {
       await firebaseManager.updateTargetReadingTime(targetTime);
-      repository.user!.targetTime = targetTime;
-      loadUserData();
+      emit(state.copyWith(targetTime: targetTime, targetReading: state.targetReading));
     } on CustomException catch (e) {
       print(e.message);
     }

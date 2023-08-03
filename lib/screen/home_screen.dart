@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:focus_detector/focus_detector.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:source_code/bloc/base_navigation_cubit.dart';
 import 'package:source_code/bloc/home_cubit.dart';
 import 'package:source_code/models/article.dart';
 import 'package:source_code/models/thread.dart';
+import 'package:source_code/models/user.dart';
 import 'package:source_code/models/word.dart';
 import 'package:source_code/utils/constants.dart';
-import 'package:source_code/utils/preference.dart';
 import 'package:source_code/utils/utils.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -113,59 +112,64 @@ class _HomeScreenView extends StatelessWidget {
   }
 
   Widget _buildProfileBlock(BuildContext context) {
-    return Card(
-        child: Padding(
-      padding: const EdgeInsets.all(10),
-      child: Container(
-        width: double.infinity, // Set width to take full width
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start, // Align children to the left
-          children: [
-            Text(
-              "Hi, ${Preferences().username}!",
-              style: TextStyle(fontSize: 30),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 5),
-              child: Text("Level 7"),
-            ),
-            Row(
-              children: [
-                Expanded(
-                  flex: 8,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: SizedBox(
-                      height: 15,
-                      child: LinearProgressIndicator(
-                        value: 0.77,
-                        backgroundColor: const Color(0xffF6F6F6),
-                        color: const Color(0xff34CA8B),
-                      ),
-                    ),
+    HomeCubit cubit = context.read<HomeCubit>();
+    HomeState state = cubit.state;
+    AppUser? user = state.user;
+    return state.loading
+        ? _buildLoadingBlock()
+        : Card(
+            child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: Container(
+              width: double.infinity, // Set width to take full width
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start, // Align children to the left
+                children: [
+                  Text(
+                    "Hi, ${user!.username}!",
+                    style: TextStyle(fontSize: 30),
                   ),
-                ),
-                Expanded(
-                    flex: 2,
-                    child: Text(
-                      "77/100",
-                      textAlign: TextAlign.right,
-                    ))
-              ],
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 5),
+                    child: Text("Level ${user.level}"),
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                        flex: 8,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: SizedBox(
+                            height: 15,
+                            child: LinearProgressIndicator(
+                              value: user.currentPoints / user.levelPoints,
+                              backgroundColor: const Color(0xffF6F6F6),
+                              color: const Color(0xff34CA8B),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                          flex: 2,
+                          child: Text(
+                            "${user.currentPoints} / ${user.levelPoints}",
+                            textAlign: TextAlign.right,
+                          ))
+                    ],
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 5),
+                    child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(backgroundColor: Color(0xffFFDF8B)),
+                        onPressed: () {
+                          Navigator.pushNamed(context, Constants.routeTask);
+                        },
+                        child: Text("Check my tasks")),
+                  )
+                ],
+              ),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 5),
-              child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: Color(0xffFFDF8B)),
-                  onPressed: () {
-                    Navigator.pushNamed(context, Constants.routeTask);
-                  },
-                  child: Text("Check my tasks")),
-            )
-          ],
-        ),
-      ),
-    ));
+          ));
   }
 
   Widget _buildWordOfTheDayBlock(BuildContext context) {

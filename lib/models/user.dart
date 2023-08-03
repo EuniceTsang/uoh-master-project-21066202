@@ -23,6 +23,12 @@ class AppUser {
   @JsonKey(name: UserFields.level)
   int level;
 
+  @JsonKey(name: UserFields.current_points)
+  int currentPoints;
+
+  @JsonKey(name: UserFields.level_points)
+  int levelPoints;
+
   @JsonKey(
       name: UserFields.last_level_update, fromJson: DateTime.parse, toJson: Utils.dateTimeToString)
   DateTime lastLevelUpdate;
@@ -34,6 +40,8 @@ class AppUser {
     this.targetReading,
     this.targetTime,
     required this.level,
+    required this.currentPoints,
+    required this.levelPoints,
     required this.lastLevelUpdate,
   });
 
@@ -50,5 +58,7 @@ class UserFields {
   static const target_reading = 'target_reading';
   static const target_time = 'target_time';
   static const level = 'level';
+  static const level_points = 'level_points';
+  static const current_points = 'current_points';
   static const last_level_update = 'last_level_update';
 }

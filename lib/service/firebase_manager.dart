@@ -31,15 +31,16 @@ class FirebaseManager {
 
     try {
       String user_id = await createUser(email, password);
+      AppUser appUser = AppUser(
+          userId: user_id,
+          username: username,
+          email: email,
+          level: 1,
+          currentPoints: 0,
+          levelPoints: 10,
+          lastLevelUpdate: DateTime.now());
 
-      final user = <String, dynamic>{
-        UserFields.user_id: user_id,
-        UserFields.username: username,
-        UserFields.email: email,
-        UserFields.level: 1,
-        UserFields.last_level_update: DateTime.now().toString()
-      };
-      DocumentReference doc = await db.collection(UserFields.collection).add(user);
+      DocumentReference doc = await db.collection(UserFields.collection).add(appUser.toJson());
       print('User created with ID: ${doc.id}');
     } catch (e) {
       print("Register failed: $e");

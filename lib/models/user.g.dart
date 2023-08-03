@@ -13,6 +13,8 @@ AppUser _$AppUserFromJson(Map<String, dynamic> json) => AppUser(
       targetReading: json['target_reading'] as int?,
       targetTime: json['target_time'] as String?,
       level: json['level'] as int,
+      currentPoints: json['current_points'] as int,
+      levelPoints: json['level_points'] as int,
       lastLevelUpdate: DateTime.parse(json['last_level_update'] as String),
     );
 
@@ -23,5 +25,7 @@ Map<String, dynamic> _$AppUserToJson(AppUser instance) => <String, dynamic>{
       'target_reading': instance.targetReading,
       'target_time': instance.targetTime,
       'level': instance.level,
+      'current_points': instance.currentPoints,
+      'level_points': instance.levelPoints,
       'last_level_update': Utils.dateTimeToString(instance.lastLevelUpdate),
     };

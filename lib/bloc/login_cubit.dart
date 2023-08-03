@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:source_code/models/user.dart';
 import 'package:source_code/service/firebase_manager.dart';
-import 'package:source_code/service/repository.dart';
 import 'package:source_code/utils/constants.dart';
 
 class LoginCubit extends Cubit<LoginState> {
@@ -15,16 +14,11 @@ class LoginCubit extends Cubit<LoginState> {
       return;
     }
     final firebaseManager = context.read<FirebaseManager>();
-    final repository = context.read<Repository>();
     EasyLoading.show(
       maskType: EasyLoadingMaskType.black,
     );
     try {
       await firebaseManager.userLogin(state.email, state.password);
-      AppUser? user = await firebaseManager.getUserData(FirebaseManager().uid);
-      if (user != null) {
-        repository.user = user;
-      }
       EasyLoading.dismiss();
       Navigator.pushReplacementNamed(context, Constants.routeBaseNavigation);
     } on CustomException catch (e) {
