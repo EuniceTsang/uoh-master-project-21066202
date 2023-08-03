@@ -11,14 +11,12 @@ class ForumThreadCubit extends Cubit<ForumThreadState> {
   Thread? thread;
   late BuildContext context;
   late FirebaseManager firebaseManager;
-  late Repository repository;
 
   ForumThreadCubit(BuildContext context, Thread? thread)
       : super(ForumThreadState(thread: thread!)) {
     this.context = context;
     this.thread = thread;
     firebaseManager = context.read<FirebaseManager>();
-    repository = context.read<Repository>();
     //load data
     if (thread != null) {
       loadThreadData();

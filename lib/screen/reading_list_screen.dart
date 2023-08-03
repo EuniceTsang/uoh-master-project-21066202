@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:source_code/bloc/reading_list_cubit.dart';
 import 'package:source_code/models/article.dart';
 import 'package:source_code/utils/constants.dart';
@@ -31,51 +32,70 @@ class _ReadingListScreenView extends StatelessWidget {
         appBar: _buildAppBar(context),
         body: ListView.builder(
             controller: _scrollController,
-            itemCount: state.articles.length,
+            itemCount: state.loading ? 5 : state.articles.length,
             itemBuilder: (context, index) {
+              if (state.loading) {
+                return _buildLoadingBlock();
+              }
               Article article = state.articles[index];
-              return Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Card(
-                    child: InkWell(
-                      onTap: (){
-                        Navigator.pushNamed(context, Constants.routeReading, arguments: article);
-                      },
-                      child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                      Image.network(
-                        article.imageUrl.isEmpty ? Constants.placeholderPicUrl : article.imageUrl,
-                        // Replace with your own image path
-                        width: double.infinity,
-                        height: 200,
-                        fit: BoxFit.fitWidth, // Adjusts the image within the card
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          children: [
-                            Text(
-                              article.title,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                            ),
-                            Text(
-                              article.abstract,
-                              maxLines: 4,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
-                        ),
-                      ),
-                  ],
-                ),
-                    )),
-              );
+              return _buildArticleBlock(context, article);
             }),
       );
     });
+  }
+
+  Widget _buildLoadingBlock() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Shimmer.fromColors(
+          baseColor: Colors.grey.shade300,
+          highlightColor: Colors.grey.shade100,
+          child: Card(child: Container(color: Colors.white, width: double.infinity, height: 250))),
+    );
+  }
+
+  Widget _buildArticleBlock(BuildContext context, Article article) {
+    ReadingListCubit cubit = context.read<ReadingListCubit>();
+    ReadingListState state = cubit.state;
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Card(
+          child: InkWell(
+        onTap: () {
+          Navigator.pushNamed(context, Constants.routeReading, arguments: article);
+        },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Image.network(
+              article.imageUrl.isEmpty ? Constants.placeholderPicUrl : article.imageUrl,
+              // Replace with your own image path
+              width: double.infinity,
+              height: 200,
+              fit: BoxFit.fitWidth, // Adjusts the image within the card
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                children: [
+                  Text(
+                    article.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    article.abstract,
+                    maxLines: 4,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      )),
+    );
   }
 
   AppBar _buildAppBar(BuildContext context) {

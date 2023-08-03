@@ -18,15 +18,18 @@ class HomeCubit extends Cubit<HomeState> {
   }
 
   Future<void> loadData() async {
+    emit(state.copyWith(loading: true));
     List<Word> wordHistory = await firebaseManager.getWordHistory();
     List<Thread> threads = await firebaseManager.getThreadList();
     List<Article> articles = await apiManager.getPopularArticles();
     Word? wordOfTheDay = await apiManager.getWordOfTheDay();
+    needReload = false;
     emit(state.copyWith(
         wordHistory: wordHistory.take(4).toList(),
         threads: threads.take(3).toList(),
         article: articles.isEmpty ? null : articles.first,
-        wordOfTheDay: wordOfTheDay));
+        wordOfTheDay: wordOfTheDay,
+        loading: false));
   }
 
   void clearSearching() {
@@ -45,24 +48,26 @@ class HomeState {
   final List<Thread> threads;
   final Article? article;
   final Word? wordOfTheDay;
+  final bool loading;
 
-  const HomeState({
-    this.isSearching = false,
-    this.searchingWord = '',
-    this.wordHistory = const [],
-    this.threads = const [],
-    this.article,
-    this.wordOfTheDay,
-  });
+  const HomeState(
+      {this.isSearching = false,
+      this.searchingWord = '',
+      this.wordHistory = const [],
+      this.threads = const [],
+      this.article,
+      this.wordOfTheDay,
+      this.loading = true});
 
-  HomeState copyWith({
-    bool? isSearching,
-    String? searchingWord,
-    List<Word>? wordHistory,
-    List<Thread>? threads,
-    Article? article,
-    Word? wordOfTheDay,
-  }) {
+  HomeState copyWith(
+      {bool? isSearching,
+      String? searchingWord,
+      List<Word>? wordHistory,
+      List<Thread>? threads,
+      Article? article,
+      Word? wordOfTheDay,
+      bool? needReload,
+      bool? loading}) {
     return HomeState(
       isSearching: isSearching ?? this.isSearching,
       searchingWord: searchingWord ?? this.searchingWord,
@@ -70,6 +75,7 @@ class HomeState {
       threads: threads ?? this.threads,
       article: article ?? this.article,
       wordOfTheDay: wordOfTheDay ?? this.wordOfTheDay,
+      loading: loading ?? this.loading,
     );
   }
 }

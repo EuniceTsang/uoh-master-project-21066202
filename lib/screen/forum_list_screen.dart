@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:focus_detector/focus_detector.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:source_code/bloc/forum_list_cubit.dart';
 import 'package:source_code/models/thread.dart';
 import 'package:source_code/utils/constants.dart';
@@ -41,7 +42,7 @@ class _ForumListScreenView extends StatelessWidget {
         },
         onFocusGained: () {
           if (cubit.needReload) {
-            cubit.loadForumData().then((value){
+            cubit.loadForumData().then((value) {
               cubit.needReload = false;
             });
           }
@@ -56,22 +57,24 @@ class _ForumListScreenView extends StatelessWidget {
                   child: ColoredBox(color: Colors.white, child: _tabBar)),
             ),
             body: TabBarView(
-              children: [
-                state.allThreads.isEmpty
-                    ? Center(
-                        child: Text(
-                        "No post at the moment",
-                        style: TextStyle(color: Colors.grey, fontSize: 20),
-                      ))
-                    : _buildThreadList(context, state.allThreads),
-                state.myThreads.isEmpty
-                    ? Center(
-                        child: Text(
-                        "No post at the moment",
-                        style: TextStyle(color: Colors.grey, fontSize: 20),
-                      ))
-                    : _buildThreadList(context, state.myThreads)
-              ],
+              children: state.loading
+                  ? [_buildLoadingList(), _buildLoadingList()]
+                  : [
+                      state.allThreads.isEmpty
+                          ? Center(
+                              child: Text(
+                              "No post at the moment",
+                              style: TextStyle(color: Colors.grey, fontSize: 20),
+                            ))
+                          : _buildThreadList(context, state.allThreads),
+                      state.myThreads.isEmpty
+                          ? Center(
+                              child: Text(
+                              "No post at the moment",
+                              style: TextStyle(color: Colors.grey, fontSize: 20),
+                            ))
+                          : _buildThreadList(context, state.myThreads)
+                    ],
             ),
             floatingActionButton: FloatingActionButton.extended(
                 onPressed: () {
@@ -82,6 +85,18 @@ class _ForumListScreenView extends StatelessWidget {
         ),
       );
     });
+  }
+
+  Widget _buildLoadingList() {
+    return ListView.builder(
+        itemCount: 10,
+        itemBuilder: (context, index) {
+          return Shimmer.fromColors(
+              baseColor: Colors.grey.shade300,
+              highlightColor: Colors.grey.shade100,
+              child: Card(
+                  child: Container(color: Colors.white, width: double.infinity, height: 80)));
+        });
   }
 
   Widget _buildThreadList(BuildContext context, List<Thread> threads) {
