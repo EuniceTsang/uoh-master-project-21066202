@@ -55,64 +55,49 @@ class Word {
       try {
         String? _pos;
         //remove all non-alphabetic characters
-        String hw = wordJson['hwi']['hw'].replaceAll(RegExp(r'[^a-zA-Z]'), '');
+        String hw = findElement(wordJson, 'hw') as String;
+        hw = hw.replaceAll(RegExp(r'[^a-zA-Z]'), '');
         if (hw.toLowerCase() != word.toLowerCase()) {
           return;
         }
-        dynamic hwi = wordJson["hwi"];
-        Map prs;
-        if (hwi.containsKey("prs")) {
-          prs = hwi["prs"][0];
-        } else if (hwi.containsKey("altprs")) {
-          prs = hwi["altprs"][0];
-        } else {
-          return;
-        }
-        if (_syllable == null) {
-          _syllable = prs["ipa"];
-        }
-        if (prs.containsKey("sound") && _audioUrl == null) {
-          String audioFileName = prs["sound"]["audio"];
-          _audioUrl =
-              "https://media.merriam-webster.com/audio/prons/en/us/mp3/${getAudioSubdirectory(audioFileName)}/$audioFileName.mp3";
-        }
-        _pos = wordJson["fl"];
+        _syllable = findElement(wordJson, 'ipa') as String;
+        String audioFileName = findElement(wordJson, 'audio') as String;
+        _audioUrl =
+            "https://media.merriam-webster.com/audio/prons/en/us/mp3/${getAudioSubdirectory(audioFileName)}/$audioFileName.mp3";
+        _pos = findElement(wordJson, 'fl') as String;
         if (_shortDefinitionPos == null &&
             _shortDefinition == null &&
             wordJson.containsKey("shortdef")) {
           _shortDefinitionPos = _pos;
           List<String> shortdefList = wordJson["shortdef"].whereType<String>().toList();
-          _shortDefinition = shortdefList.join(", ").replaceAll("—", "");
+          _shortDefinition = shortdefList.join(", ");
         }
-        _posDefinitionMap[_pos!] = [];
+        _posDefinitionMap[_pos] = [];
         List<dynamic> definitions = wordJson["def"][0]["sseq"];
         definitions.forEach((definitionJson) {
-          List dt = definitionJson[0][1]["dt"];
-          String? _definition;
+          List? _definitionList = findListByElement(definitionJson, "text");
+          String? _definition = _definitionList?[1];
+          if (_definition != null) {
+            //remove curly brackets and the content inside them
+            _definition = _definition.replaceAll(RegExp(r'\{.*?\}'), '');
+            _definition = toBeginningOfSentenceCase(_definition)!;
+          }
+
           List<String> _sentences = [];
-          dt.forEach((element) {
-            if (_definition != null && _sentences.isNotEmpty) {
-              return;
-            }
-            if (element[0] == "text") {
-              //remove curly brackets and the content inside them
-              _definition = element[1].replaceAll(RegExp(r'\{.*?\}'), '');
-              _definition = toBeginningOfSentenceCase(_definition)!;
-            } else if (element[0] == "vis") {
-              List<dynamic> sentenceJsonList = element[1];
-              sentenceJsonList.forEach((sentenceJson) {
-                String sentence =
-                    sentenceJson["t"].replaceAll("{it}", "<i>").replaceAll("{/it}", "</i>");
-                //remove curly brackets and the content inside them
-                sentence = sentence.replaceAll(RegExp(r'\{.*?\}'), '');
-                _sentences.add(toBeginningOfSentenceCase(sentence)!);
-              });
-            }
+          List _sentencesList = findListByElement(definitionJson, "vis") ?? [];
+          _sentencesList = _sentencesList.length > 1 ? _sentencesList[1] : [];
+          _sentencesList.forEach((element) {
+            String sentence = element["t"].replaceAll("{it}", "<i>").replaceAll("{/it}", "</i>");
+            //remove curly brackets and the content inside them
+            sentence = sentence.replaceAll(RegExp(r'\{.*?\}'), '');
+            _sentences.add(toBeginningOfSentenceCase(sentence)!);
           });
-          if (_definition == null || _definition!.isEmpty) {
+
+          if (_definition == null || _definition.isEmpty) {
             return;
           }
-          Definition definition = Definition(definition: _definition!, sentences: _sentences);
+
+          Definition definition = Definition(definition: _definition, sentences: _sentences);
           List<Definition> definitions = _posDefinitionMap[_pos!]!;
           definitions.add(definition);
           _posDefinitionMap[_pos] = definitions;
@@ -136,6 +121,52 @@ class Word {
     } else {
       return null;
     }
+  }
+
+  static dynamic findElement(dynamic json, String key) {
+    if (json is Map) {
+      if (json.containsKey(key)) {
+        return json[key];
+      } else {
+        for (var value in json.values) {
+          var result = findElement(value, key);
+          if (result != null) {
+            return result;
+          }
+        }
+      }
+    } else if (json is List) {
+      for (var item in json) {
+        var result = findElement(item, key);
+        if (result != null) {
+          return result;
+        }
+      }
+    }
+    return null;
+  }
+
+  static List? findListByElement(dynamic json, String targetText) {
+    if (json is Map) {
+      for (var value in json.values) {
+        var result = findListByElement(value, targetText);
+        if (result != null) {
+          return result;
+        }
+      }
+    } else if (json is List) {
+      if (json.contains(targetText)) {
+        return json;
+      } else {
+        for (var item in json) {
+          var result = findListByElement(item, targetText);
+          if (result != null) {
+            return result;
+          }
+        }
+      }
+    }
+    return null;
   }
 
   static String getAudioSubdirectory(String audioFileName) {

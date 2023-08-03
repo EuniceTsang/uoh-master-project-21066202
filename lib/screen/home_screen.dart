@@ -176,41 +176,17 @@ class _HomeScreenView extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start, // Align children to the left
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 5),
-            child: Row(
-              children: [
-                Expanded(
+              padding: const EdgeInsets.symmetric(horizontal: 5),
+              child: SizedBox(
+                height: 40,
+                child: Align(
+                  alignment: Alignment.centerLeft,
                   child: Text(
                     "Word of the day",
                     style: TextStyle(fontSize: 20),
                   ),
                 ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, Constants.routeDictionary,
-                        arguments: "loquacious");
-                  },
-                  child: Row(
-                    children: [
-                      Text(
-                        'More',
-                        style: TextStyle(
-                          color: Colors.black, // Set the font color
-                        ),
-                      ),
-                      Icon(
-                        Icons.arrow_forward_ios_rounded,
-                        size: 15,
-                      ),
-                    ],
-                  ),
-                  style: TextButton.styleFrom(
-                    backgroundColor: Colors.transparent, // Set the background color to transparent
-                  ),
-                ),
-              ],
-            ),
-          ),
+              )),
           Card(
               child: wordOfTheDay == null
                   ? Center(
@@ -224,25 +200,32 @@ class _HomeScreenView extends StatelessWidget {
                     )
                   : Padding(
                       padding: const EdgeInsets.all(10),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start, // Align children to the left
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                wordOfTheDay.word,
-                                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                              ),
-                              SizedBox(
-                                width: 10,
-                              ),
-                              Text(wordOfTheDay.shortDefinitionPos ?? ''),
-                            ],
-                          ),
-                          Text(wordOfTheDay.syllable),
-                          SizedBox(height: 10),
-                          Text(wordOfTheDay.shortDefinition ?? ''),
-                        ],
+                      child: InkWell(
+                        onTap: () {
+                          Navigator.pushNamed(context, Constants.routeDictionary,
+                              arguments: wordOfTheDay.word);
+                        },
+                        child: Column(
+                          crossAxisAlignment:
+                              CrossAxisAlignment.start, // Align children to the left
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  wordOfTheDay.word,
+                                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                                ),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Text(wordOfTheDay.shortDefinitionPos ?? ''),
+                              ],
+                            ),
+                            Text(wordOfTheDay.syllable),
+                            SizedBox(height: 10),
+                            Text(wordOfTheDay.shortDefinition ?? ''),
+                          ],
+                        ),
                       ),
                     ))
         ],
