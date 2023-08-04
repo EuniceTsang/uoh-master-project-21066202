@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:source_code/service/firebase_manager.dart';
+import 'package:source_code/service/task_manager.dart';
 import 'package:source_code/utils/constants.dart';
 import 'package:source_code/utils/preference.dart';
 
@@ -14,21 +15,28 @@ class LaunchScreen extends StatefulWidget {
 
 class _LaunchState extends State<LaunchScreen> {
   late FirebaseManager firebaseManager;
+  late TaskManager taskManager;
 
   @override
   Widget build(BuildContext context) {
-    firebaseManager = context.read<FirebaseManager>();
-    initData();
     return _LaunchView();
+  }
+
+  @override
+  void initState() {
+    firebaseManager = context.read<FirebaseManager>();
+    taskManager = context.read<TaskManager>();
+    initData();
+    super.initState();
   }
 
   void initData() async {
     if (!firebaseManager.isLoggedIn) {
       await Preferences().clearPrefForLoggedOut();
-      Navigator.of(context).pushNamedAndRemoveUntil(Constants.routeLogin,(Route<dynamic> route) => false);
+      Navigator.pushReplacementNamed(context, Constants.routeLogin);
     } else {
-      await Future.delayed(Duration(seconds: 1));
-      Navigator.of(context).pushNamedAndRemoveUntil(Constants.routeBaseNavigation,(Route<dynamic> route) => false);
+      await taskManager.loadTask();
+      Navigator.pushReplacementNamed(context, Constants.routeBaseNavigation);
     }
   }
 }

@@ -23,7 +23,7 @@ class HomeCubit extends Cubit<HomeState> {
     List<Thread> threads = await firebaseManager.getThreadList();
     List<Article> articles = await apiManager.getPopularArticles();
     Word? wordOfTheDay = await apiManager.getWordOfTheDay();
-    AppUser? user = await firebaseManager.getUserData(FirebaseManager().uid);
+    AppUser? user = await firebaseManager.getUserData(firebaseManager.uid);
     needReload = false;
     emit(state.copyWith(
         user: user,

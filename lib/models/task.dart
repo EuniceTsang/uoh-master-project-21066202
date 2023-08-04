@@ -9,7 +9,7 @@ class Task {
   String taskId;
 
   @JsonKey(name: TaskFields.user_id)
-  int userId;
+  String userId;
 
   @JsonKey(name: TaskFields.type, fromJson: intToTaskType, toJson: taskTypeToInt)
   TaskType type;
@@ -40,6 +40,34 @@ class Task {
     required this.finished,
     required this.lastUpdateTime,
   });
+
+  factory Task.fromJson(Map<String, dynamic> json) => _$TaskFromJson(json);
+
+  Map<String, dynamic> toJson() => _$TaskToJson(this);
+
+  String getTaskDescription() {
+    switch (type) {
+      case TaskType.Reading:
+        return "Read $target ${target == 1 ? "article" : "articles"} in a day";
+      case TaskType.ConsistentReading:
+        return "Read article(s) for $target consecutive days";
+      case TaskType.VocabularyCheckInReading:
+        return "Check $target ${target == 1 ? "vocabulary" : "vocabularies"} in an article";
+      case TaskType.VocabularyCheck:
+        return "Check $target new ${target == 1 ? "vocabulary" : "vocabularies"} through dictionary";
+      case TaskType.WordOfTheDay:
+        return "Check word of the day";
+      case TaskType.ReviseWordHistory:
+        return "Revise $target ${target == 1 ? "vocabulary" : "vocabularies"} in history";
+      case TaskType.ReplyInForum:
+        return "Leave $target ${target == 1 ? "reply" : "replies"} in the forum";
+      case TaskType.PostInForum:
+        return "Create $target ${target == 1 ? "post" : "posts"} in the forum";
+      default:
+        throw ArgumentError('Invalid TaskType: $type');
+    }
+  }
+
 }
 
 class TaskFields {
@@ -55,11 +83,11 @@ class TaskFields {
 }
 
 enum TaskType {
-  ReadTargetNumberOfBooks,
+  Reading,
   ConsistentReading,
   VocabularyCheckInReading,
   VocabularyCheck,
-  WordRevision,
+  WordOfTheDay,
   ReviseWordHistory,
   ReplyInForum,
   PostInForum,
@@ -68,7 +96,7 @@ enum TaskType {
 TaskType intToTaskType(int value) {
   switch (value) {
     case 1:
-      return TaskType.ReadTargetNumberOfBooks;
+      return TaskType.Reading;
     case 2:
       return TaskType.ConsistentReading;
     case 3:
@@ -76,7 +104,7 @@ TaskType intToTaskType(int value) {
     case 4:
       return TaskType.VocabularyCheck;
     case 5:
-      return TaskType.WordRevision;
+      return TaskType.WordOfTheDay;
     case 6:
       return TaskType.ReviseWordHistory;
     case 7:
@@ -90,7 +118,7 @@ TaskType intToTaskType(int value) {
 
 int taskTypeToInt(TaskType type) {
   switch (type) {
-    case TaskType.ReadTargetNumberOfBooks:
+    case TaskType.Reading:
       return 1;
     case TaskType.ConsistentReading:
       return 2;
@@ -98,7 +126,7 @@ int taskTypeToInt(TaskType type) {
       return 3;
     case TaskType.VocabularyCheck:
       return 4;
-    case TaskType.WordRevision:
+    case TaskType.WordOfTheDay:
       return 5;
     case TaskType.ReviseWordHistory:
       return 6;

@@ -15,6 +15,7 @@ import 'package:source_code/screen/task_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:source_code/service/api_manager.dart';
 import 'package:source_code/service/firebase_manager.dart';
+import 'package:source_code/service/task_manager.dart';
 import 'service/firebase_options.dart';
 import 'utils/constants.dart';
 
@@ -33,13 +34,17 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    final FirebaseManager firebaseManager = FirebaseManager();
     return MultiRepositoryProvider(
       providers: [
         RepositoryProvider<FirebaseManager>(
-          create: (_) => FirebaseManager(),
+          create: (_) => firebaseManager,
         ),
         RepositoryProvider<ApiManager>(
           create: (_) => ApiManager(),
+        ),
+        RepositoryProvider<TaskManager>(
+          create: (_) => TaskManager(firebaseManager),
         ),
       ],
       child: MaterialApp(

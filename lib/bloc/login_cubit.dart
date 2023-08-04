@@ -1,24 +1,31 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:source_code/models/user.dart';
 import 'package:source_code/service/firebase_manager.dart';
+import 'package:source_code/service/task_manager.dart';
 import 'package:source_code/utils/constants.dart';
 
 class LoginCubit extends Cubit<LoginState> {
-  LoginCubit() : super(const LoginState());
+  BuildContext context;
+  late FirebaseManager firebaseManager;
+  late TaskManager taskManager;
 
-  void login(BuildContext context) async {
+  LoginCubit(this.context) : super(const LoginState()) {
+    firebaseManager = context.read<FirebaseManager>();
+    taskManager = context.read<TaskManager>();
+  }
+
+  void login() async {
     if (state.email.isEmpty || state.password.isEmpty) {
       emit(state.copyWith(errorMessage: "Email and password cannot be empty"));
       return;
     }
-    final firebaseManager = context.read<FirebaseManager>();
     EasyLoading.show(
       maskType: EasyLoadingMaskType.black,
     );
     try {
       await firebaseManager.userLogin(state.email, state.password);
+      await taskManager.loadTask();
       EasyLoading.dismiss();
       Navigator.pushReplacementNamed(context, Constants.routeBaseNavigation);
     } on CustomException catch (e) {
@@ -38,7 +45,7 @@ class LoginCubit extends Cubit<LoginState> {
   void emailChanged(String value) {
     emit(
       state.copyWith(
-        username: value,
+        email: value,
       ),
     );
   }
@@ -52,12 +59,12 @@ class LoginState {
   const LoginState({this.email = "", this.password = "", this.errorMessage = ""});
 
   LoginState copyWith({
-    String? username,
+    String? email,
     String? password,
     String? errorMessage,
   }) {
     return LoginState(
-      email: username ?? this.email,
+      email: email ?? this.email,
       password: password ?? this.password,
       errorMessage: errorMessage ?? this.errorMessage,
     );

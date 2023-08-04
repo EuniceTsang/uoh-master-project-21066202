@@ -1,18 +1,45 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:source_code/models/task.dart';
+import 'package:source_code/service/firebase_manager.dart';
+import 'package:source_code/service/task_manager.dart';
 
 class TaskCubit extends Cubit<TaskState> {
-  TaskCubit() : super(const TaskState());
+  late FirebaseManager firebaseManager;
+  late TaskManager taskManager;
 
-  Future<void> changeTab(int currentIndex) async {
-    if (currentIndex == state.currentTabIndex) {
-      return;
-    }
-    emit(TaskState(currentTabIndex: currentIndex));
+  TaskCubit(BuildContext context) : super(const TaskState()) {
+    firebaseManager = context.read<FirebaseManager>();
+    taskManager = context.read<TaskManager>();
+    loadTasks();
+  }
+
+  Future<void> loadTasks() async {
+    await taskManager.loadTask();
+    emit(state.copyWith(
+        currentTasks: taskManager.currentTasks, completedTasks: taskManager.completedTasks, loading: false));
   }
 }
 
 class TaskState {
-  final int currentTabIndex;
+  final List<Task> currentTasks;
+  final List<Task> completedTasks;
+  final bool loading;
 
-  const TaskState({this.currentTabIndex = 0});
+  const TaskState(
+      {this.currentTasks = const [], this.completedTasks = const [], this.loading = true});
+
+
+  TaskState copyWith({
+    List<Task>? currentTasks,
+    List<Task>? completedTasks,
+    bool? loading
+  }) {
+    return TaskState(
+      currentTasks: currentTasks ?? this.currentTasks,
+      completedTasks: completedTasks ?? this.completedTasks,
+      loading: loading ?? this.loading,
+    );
+  }
+
 }

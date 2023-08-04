@@ -14,7 +14,7 @@ class AccountCubit extends Cubit<AccountState> {
   }
 
   void loadUserData() async {
-    AppUser? user = await firebaseManager.getUserData(FirebaseManager().uid);
+    AppUser? user = await firebaseManager.getUserData(firebaseManager.uid);
     emit(state.copyWith(targetTime: user?.targetTime, targetReading: user?.targetReading));
   }
 

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:source_code/models/article.dart';
 import 'package:source_code/models/comment.dart';
+import 'package:source_code/models/task.dart';
 import 'package:source_code/models/thread.dart';
 import 'package:source_code/models/user.dart';
 import 'package:source_code/models/word.dart';
@@ -58,7 +59,7 @@ class FirebaseManager {
 
   Future<void> userLogin(String email, String password) async {
     try {
-      UserCredential userCredential = await auth.signInWithEmailAndPassword(
+      await auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
@@ -70,7 +71,7 @@ class FirebaseManager {
           .get();
       if (querySnapshot.docs.isNotEmpty) {
         String username = querySnapshot.docs.first.get(UserFields.username);
-        Preferences().savePrefForLoggedIn(username, user!.uid);
+        await Preferences().savePrefForLoggedIn(username, user!.uid);
       }
     } on FirebaseAuthException catch (e) {
       print(e.message);
@@ -109,7 +110,7 @@ class FirebaseManager {
         print(map);
         return AppUser.fromJson(map);
       } else {
-        throw Exception("Cannot find user profile");
+        throw Exception("Cannot find user profile for $userId");
       }
     } catch (e) {
       print(e);
@@ -161,6 +162,37 @@ class FirebaseManager {
           // This will update the specified field and create it if it doesn't exist
           SetOptions(merge: true),
         );
+      } else {
+        throw Exception("Cannot find user profile");
+      }
+      // DocumentReference userRef = db.collection(UserFields.collection).doc(uid);
+    } catch (e) {
+      print(e);
+      throw (CustomException(e.toString()));
+    }
+  }
+
+  Future<void> updateUserLevel(int currentPoints, {int? level, int? levelPoints}) async {
+    try {
+      // Get the reference to the user document using the UID
+      QuerySnapshot querySnapshot = await db
+          .collection(UserFields.collection)
+          .where(UserFields.user_id, isEqualTo: uid)
+          .limit(1)
+          .get();
+      if (querySnapshot.docs.isNotEmpty) {
+        DocumentReference userRef = querySnapshot.docs.first.reference;
+        var data = {
+          UserFields.current_points: currentPoints,
+          UserFields.last_level_update: DateTime.now().toString()
+        };
+        if (level != null) {
+          data[UserFields.level] = level;
+        }
+        if (levelPoints != null) {
+          data[UserFields.level_points] = levelPoints;
+        }
+        await userRef.update(data);
       } else {
         throw Exception("Cannot find user profile");
       }
@@ -411,6 +443,87 @@ class FirebaseManager {
     } catch (e) {
       print("getArticles failed: $e");
       return [];
+    }
+  }
+
+//endregion
+
+//region task
+  Future<List<Task>> getCurrentTasks() async {
+    try {
+      QuerySnapshot querySnapshot = await db
+          .collection(TaskFields.collection)
+          .where(TaskFields.user_id, isEqualTo: uid)
+          .where(TaskFields.finished, isEqualTo: false)
+          .get();
+      if (querySnapshot.docs.isNotEmpty) {
+        List<Task> tasks = [];
+        for (var element in querySnapshot.docs) {
+          Map<String, dynamic> map = element.data() as Map<String, dynamic>;
+          print(map);
+          Task task = Task.fromJson(map);
+          tasks.add(task);
+        }
+        return tasks;
+      } else {
+        return [];
+      }
+    } catch (e) {
+      print("getCurrentTask failed: $e");
+      return [];
+    }
+  }
+
+  Future<List<Task>> getCompletedTasks() async {
+    try {
+      QuerySnapshot querySnapshot = await db
+          .collection(TaskFields.collection)
+          .where(TaskFields.user_id, isEqualTo: uid)
+          .where(TaskFields.finished, isEqualTo: true)
+          .orderBy(TaskFields.last_update_time, descending: true)
+          .limit(3)
+          .get();
+      if (querySnapshot.docs.isNotEmpty) {
+        List<Task> tasks = [];
+        for (var element in querySnapshot.docs) {
+          Map<String, dynamic> map = element.data() as Map<String, dynamic>;
+          print(map);
+          Task task = Task.fromJson(map);
+          tasks.add(task);
+        }
+        return tasks;
+      } else {
+        return [];
+      }
+    } catch (e) {
+      print("getCompletedTask failed: $e");
+      return [];
+    }
+  }
+
+  Future<void> updateTask(Task task) async {
+    try {
+      QuerySnapshot querySnapshot = await db
+          .collection(TaskFields.collection)
+          .where(TaskFields.task_id, isEqualTo: task.taskId)
+          .limit(1)
+          .get();
+      if (querySnapshot.docs.isEmpty) {
+        DocumentReference doc = await db.collection(TaskFields.collection).add(task.toJson());
+        print('task created with ID: ${doc.id}');
+      } else {
+        DocumentReference taskRef = querySnapshot.docs.first.reference;
+        await taskRef.update(
+          {
+            TaskFields.finished: task.finished,
+            TaskFields.current: task.current,
+            TaskFields.last_update_time: task.lastUpdateTime.toString(),
+          },
+        );
+        print('updated task');
+      }
+    } catch (e) {
+      print("updateTask failed: $e");
     }
   }
 

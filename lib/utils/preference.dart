@@ -28,8 +28,8 @@ class Preferences {
 
   String get username => _getStorage().read(USERNAME_KEY) ?? '';
 
-  Future<void> setUid(String password) {
-    return _getStorage().write(UID_KEY, password);
+  Future<void> setUid(String uid) {
+    return _getStorage().write(UID_KEY, uid);
   }
 
   String get uid => _getStorage().read(UID_KEY) ?? '';

@@ -11,7 +11,7 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (BuildContext context) {
-        return LoginCubit();
+        return LoginCubit(context);
       },
       child: BlocBuilder<LoginCubit, LoginState>(builder: (context, state) {
         LoginCubit cubit = context.read<LoginCubit>();
@@ -84,7 +84,7 @@ class LoginScreen extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black, minimumSize: Size(200, 40)),
                   onPressed: () {
-                    context.read<LoginCubit>().login(context);
+                    context.read<LoginCubit>().login();
                   },
                   child: Padding(
                     padding: const EdgeInsets.all(10),
