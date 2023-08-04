@@ -42,9 +42,9 @@ class FirebaseManager {
           lastLevelUpdate: DateTime.now());
 
       DocumentReference doc = await db.collection(UserFields.collection).add(appUser.toJson());
-      print('User created with ID: ${doc.id}');
+      print('userRegister: user created $appUser');
     } catch (e) {
-      print("Register failed: $e");
+      print("userRegister: $e");
       throw (CustomException("Register failed: $e"));
     }
   }
@@ -74,10 +74,11 @@ class FirebaseManager {
         await Preferences().savePrefForLoggedIn(username, user!.uid);
       }
     } on FirebaseAuthException catch (e) {
-      print(e.message);
+      print("userLogin: ${e.message}");
       throw (CustomException('Incorrect username or password'));
-    } catch (e) {
-      print(e);
+    } catch (e, stacktrace) {
+      print("userLogin: $e");
+      print("userLogin: $stacktrace");
       throw (CustomException(e.toString()));
     }
   }
@@ -88,8 +89,9 @@ class FirebaseManager {
       // After signing out, you can navigate to the login page or any other page as needed.
       // For example, you can use Navigator to navigate to the login page:
       // Navigator.pushReplacementNamed(context, '/login');
-    } catch (e) {
-      print('Error logging out: $e');
+    } catch (e, stacktrace) {
+      print("logout: $e");
+      print("logout: $stacktrace");
       throw (CustomException(e.toString()));
     }
   }
@@ -107,13 +109,14 @@ class FirebaseManager {
           .get();
       if (querySnapshot.docs.isNotEmpty) {
         Map<String, dynamic> map = querySnapshot.docs.first.data() as Map<String, dynamic>;
-        print(map);
+        print("getUserData: map");
         return AppUser.fromJson(map);
       } else {
         throw Exception("Cannot find user profile for $userId");
       }
-    } catch (e) {
-      print(e);
+    } catch (e, stacktrace) {
+      print("getUserData: $e");
+      print("getUserData: $stacktrace");
       return null;
     }
   }
@@ -139,8 +142,9 @@ class FirebaseManager {
         throw Exception("Cannot find user profile");
       }
       // DocumentReference userRef = db.collection(UserFields.collection).doc(uid);
-    } catch (e) {
-      print(e);
+    } catch (e, stacktrace) {
+      print("updateTargetReading: $e");
+      print("updateTargetReading: $stacktrace");
       throw (CustomException(e.toString()));
     }
   }
@@ -166,8 +170,9 @@ class FirebaseManager {
         throw Exception("Cannot find user profile");
       }
       // DocumentReference userRef = db.collection(UserFields.collection).doc(uid);
-    } catch (e) {
-      print(e);
+    } catch (e, stacktrace) {
+      print("updateTargetReadingTime: $e");
+      print("updateTargetReadingTime: $stacktrace");
       throw (CustomException(e.toString()));
     }
   }
@@ -197,8 +202,9 @@ class FirebaseManager {
         throw Exception("Cannot find user profile");
       }
       // DocumentReference userRef = db.collection(UserFields.collection).doc(uid);
-    } catch (e) {
-      print(e);
+    } catch (e, stacktrace) {
+      print("updateUserLevel: $e");
+      print("updateUserLevel: $stacktrace");
       throw (CustomException(e.toString()));
     }
   }
@@ -217,7 +223,7 @@ class FirebaseManager {
         List<Thread> threads = [];
         for (var element in querySnapshot.docs) {
           Map<String, dynamic> map = element.data() as Map<String, dynamic>;
-          print(map);
+          print("getThreadList: $map");
           Thread thread = Thread.fromJson(map);
           thread.commentNumber = await getCommentNumber(thread.threadId);
           thread.author = await getUserData(thread.userId);
@@ -228,8 +234,8 @@ class FirebaseManager {
         return [];
       }
     } catch (e, stacktrace) {
-      print(e);
-      print(stacktrace);
+      print("getThreadList: $e");
+      print("getThreadList: $stacktrace");
       return [];
     }
   }
@@ -243,8 +249,8 @@ class FirebaseManager {
           .get();
       return snapshot.count;
     } catch (e, stacktrace) {
-      print(e);
-      print(stacktrace);
+      print("getCommentNumber: $e");
+      print("getCommentNumber: $stacktrace");
       return 0;
     }
   }
@@ -260,7 +266,7 @@ class FirebaseManager {
         List<Comment> comments = [];
         for (var element in querySnapshot.docs) {
           Map<String, dynamic> map = element.data() as Map<String, dynamic>;
-          print(map);
+          print("getComments: $map");
           Comment comment = Comment.fromJson(map);
           comment.author = await getUserData(comment.userId);
           comments.add(comment);
@@ -270,8 +276,8 @@ class FirebaseManager {
         return [];
       }
     } catch (e, stacktrace) {
-      print(e);
-      print(stacktrace);
+      print("getComments: $e");
+      print("getComments: $stacktrace");
       return [];
     }
   }
@@ -279,9 +285,10 @@ class FirebaseManager {
   Future<void> createThread(Thread thread) async {
     try {
       DocumentReference doc = await db.collection(ThreadFields.collection).add(thread.toJson());
-      print('thread created with ID: ${doc.id}');
-    } catch (e) {
-      print("createThread failed: $e");
+      print('createThread: success');
+    } catch (e, stacktrace) {
+      print("createThread: $e");
+      print("createThread: $stacktrace");
       throw (CustomException("createThread failed: $e"));
     }
   }
@@ -289,9 +296,10 @@ class FirebaseManager {
   Future<void> addComment(Comment comment) async {
     try {
       DocumentReference doc = await db.collection(CommentFields.collection).add(comment.toJson());
-      print('comment created with ID: ${doc.id}');
-    } catch (e) {
-      print("addComment failed: $e");
+      print('addComment: success');
+    } catch (e, stacktrace) {
+      print("addComment: $e");
+      print("addComment: $stacktrace");
       throw (CustomException("addComment failed: $e"));
     }
   }
@@ -313,8 +321,9 @@ class FirebaseManager {
       } else {
         throw Exception("Cannot find thread");
       }
-    } catch (e) {
-      print("toggleLikeThread failed: $e");
+    } catch (e, stacktrace) {
+      print("toggleLikeThread: $e");
+      print("toggleLikeThread: $stacktrace");
     }
   }
 
@@ -335,8 +344,9 @@ class FirebaseManager {
       } else {
         throw Exception("Cannot find comment");
       }
-    } catch (e) {
-      print("toggleLikeComment failed: $e");
+    } catch (e, stacktrace) {
+      print("toggleLikeComment: $e");
+      print("toggleLikeComment: $stacktrace");
     }
   }
 
@@ -353,7 +363,7 @@ class FirebaseManager {
           .get();
       if (querySnapshot.docs.isEmpty) {
         DocumentReference doc = await db.collection(WordFields.collection).add(word.toJson());
-        print('word created with ID: ${doc.id}');
+        print('updateWordHistory: created word $word');
         return true;
       } else {
         DocumentReference wordRef = querySnapshot.docs.first.reference;
@@ -362,11 +372,12 @@ class FirebaseManager {
             WordFields.search_time: word.searchTime.toString(),
           },
         );
-        print('updated word');
+        print('updateWordHistory: updated word $word');
         return false;
       }
-    } catch (e) {
-      print("updateWord failed: $e");
+    } catch (e, stacktrace) {
+      print("updateWordHistory: $e");
+      print("updateWordHistory: $stacktrace");
     }
     return false;
   }
@@ -383,7 +394,7 @@ class FirebaseManager {
         List<Word> words = [];
         for (var element in querySnapshot.docs) {
           Map<String, dynamic> map = element.data() as Map<String, dynamic>;
-          print(map);
+          print("getWordHistory: $map");
           Word word = Word.fromJson(map);
           words.add(word);
         }
@@ -391,8 +402,9 @@ class FirebaseManager {
       } else {
         return [];
       }
-    } catch (e) {
-      print("getWords failed: $e");
+    } catch (e, stacktrace) {
+      print("getWordHistory: $e");
+      print("getWordHistory: $stacktrace");
       return [];
     }
   }
@@ -410,7 +422,7 @@ class FirebaseManager {
           .get();
       if (querySnapshot.docs.isEmpty) {
         DocumentReference doc = await db.collection(ArticleFields.collection).add(article.toJson());
-        print('article created with ID: ${doc.id}');
+        print("updateArticleHistory: created article $article");
         return true;
       } else {
         DocumentReference articleRef = querySnapshot.docs.first.reference;
@@ -419,11 +431,12 @@ class FirebaseManager {
             ArticleFields.search_time: article.searchTime.toString(),
           },
         );
-        print('updated article');
+        print("updateArticleHistory: updated article $article");
         return false;
       }
-    } catch (e) {
-      print("updateArticle failed: $e");
+    } catch (e, stacktrace) {
+      print("updateArticleHistory: $e");
+      print("updateArticleHistory: $stacktrace");
     }
     return false;
   }
@@ -440,7 +453,7 @@ class FirebaseManager {
         List<Article> articles = [];
         for (var element in querySnapshot.docs) {
           Map<String, dynamic> map = element.data() as Map<String, dynamic>;
-          print(map);
+          print("getArticleHistory: $map");
           Article article = Article.fromJson(map);
           articles.add(article);
         }
@@ -448,8 +461,9 @@ class FirebaseManager {
       } else {
         return [];
       }
-    } catch (e) {
-      print("getArticles failed: $e");
+    } catch (e, stacktrace) {
+      print("getArticleHistory: $e");
+      print("getArticleHistory: $stacktrace");
       return [];
     }
   }
@@ -468,7 +482,7 @@ class FirebaseManager {
         List<Task> tasks = [];
         for (var element in querySnapshot.docs) {
           Map<String, dynamic> map = element.data() as Map<String, dynamic>;
-          print(map);
+          print("getCurrentTasks: $map");
           Task task = Task.fromJson(map);
           tasks.add(task);
         }
@@ -476,8 +490,9 @@ class FirebaseManager {
       } else {
         return [];
       }
-    } catch (e) {
-      print("getCurrentTask failed: $e");
+    } catch (e, stacktrace) {
+      print("getCurrentTasks: $e");
+      print("getCurrentTasks: $stacktrace");
       return [];
     }
   }
@@ -495,7 +510,7 @@ class FirebaseManager {
         List<Task> tasks = [];
         for (var element in querySnapshot.docs) {
           Map<String, dynamic> map = element.data() as Map<String, dynamic>;
-          print(map);
+          print("getCompletedTasks: $map");
           Task task = Task.fromJson(map);
           tasks.add(task);
         }
@@ -503,8 +518,9 @@ class FirebaseManager {
       } else {
         return [];
       }
-    } catch (e) {
-      print("getCompletedTask failed: $e");
+    } catch (e, stacktrace) {
+      print("getCompletedTasks: $e");
+      print("getCompletedTasks: $stacktrace");
       return [];
     }
   }
@@ -518,7 +534,7 @@ class FirebaseManager {
           .get();
       if (querySnapshot.docs.isEmpty) {
         DocumentReference doc = await db.collection(TaskFields.collection).add(task.toJson());
-        print('task created with ID: ${doc.id}');
+        print('updateTask: Task created $task');
       } else {
         DocumentReference taskRef = querySnapshot.docs.first.reference;
         await taskRef.update(
@@ -528,10 +544,11 @@ class FirebaseManager {
             TaskFields.last_update_time: DateTime.now().toString(),
           },
         );
-        print('updated task');
+        print('updateTask: Task updated $task');
       }
-    } catch (e) {
-      print("updateTask failed: $e");
+    } catch (e, stacktrace) {
+      print("updateTask: $e");
+      print("updateTask: $stacktrace");
     }
   }
 

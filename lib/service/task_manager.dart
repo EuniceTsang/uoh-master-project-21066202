@@ -15,6 +15,7 @@ class TaskManager {
   AppUser? user;
   List<Task> currentTasks = [];
   List<Task> completedTasks = [];
+  int wordCheckedInArticle = 0;
 
   TaskManager(this.firebaseManager);
 
@@ -32,8 +33,8 @@ class TaskManager {
         await resetTaskProgress();
       }
     } catch (e, stacktrace) {
-      print(e);
-      print(stacktrace);
+      print("loadTask: $e");
+      print("loadTask: $stacktrace");
     }
   }
 
@@ -49,7 +50,7 @@ class TaskManager {
     int minValue = 0, maxValue = 0;
     int userLevelPoints = user!.levelPoints;
     switch (taskType) {
-      //1-5
+      //range: 1-5
       case TaskType.Reading:
       case TaskType.ReviseWordHistory:
       case TaskType.ReplyInForum:
@@ -57,18 +58,18 @@ class TaskManager {
         minValue = 1;
         maxValue = min((userLevelPoints / 5).floor(), 5);
         break;
-      //2-5
+      //range: 2-5
       case TaskType.ConsistentReading:
         minValue = 2;
         maxValue = min((userLevelPoints / 5).floor(), 5);
         break;
-      //1-10
+      //range: 1-10
       case TaskType.VocabularyCheckInReading:
       case TaskType.VocabularyCheck:
         minValue = 1;
         maxValue = min((userLevelPoints / 5).floor(), 10);
         break;
-      //1
+      //range: 1
       case TaskType.WordOfTheDay:
         minValue = 1;
         maxValue = 1;
@@ -88,6 +89,10 @@ class TaskManager {
         lastUpdateTime: null);
     await firebaseManager.updateTask(task);
     return task;
+  }
+
+  Future<void> resetWordCheckedInArticle() async {
+    wordCheckedInArticle = 0;
   }
 
   Future<void> resetTaskProgress() async {
@@ -118,9 +123,6 @@ class TaskManager {
           }
           break;
         case TaskType.VocabularyCheckInReading:
-          task.current = 0;
-          reset = true;
-          break;
         case TaskType.WordOfTheDay:
         case TaskType.ReviseWordHistory:
         case TaskType.ReplyInForum:
@@ -129,6 +131,7 @@ class TaskManager {
       }
       if (reset) {
         changed = true;
+        print("resetTaskProgress: reset task $task");
         await firebaseManager.updateTask(task);
       }
     }
@@ -139,9 +142,8 @@ class TaskManager {
   }
 
   Future<void> checkTasksAchieve(List<TaskType> taskTypes) async {
-    await resetTaskProgress();
-    print(taskTypes);
-    print(currentTasks);
+    print("checkTasksAchieve: $taskTypes");
+    print("checkTasksAchieve: $currentTasks");
     for (TaskType taskType in taskTypes) {
       Task? task = currentTasks.firstWhereOrNull((item) => item.type == taskType);
       if (task == null) {
@@ -154,12 +156,19 @@ class TaskManager {
           continue;
         }
       }
-      print(taskType);
-      task.current += 1;
+      if (task.type == TaskType.VocabularyCheckInReading) {
+        wordCheckedInArticle++;
+        print("wordCheckedInArticle: $wordCheckedInArticle");
+        if (wordCheckedInArticle > task.current) {
+          task.current = wordCheckedInArticle;
+        }
+      } else {
+        task.current += 1;
+      }
       if (task.current == task.target) {
         await taskCompleted(task);
       }
-      print(task);
+      print("checkTasksAchieve, updated: $task");
       await firebaseManager.updateTask(task);
     }
     await loadTask();
@@ -176,8 +185,10 @@ class TaskManager {
       user!.currentPoints -= user!.levelPoints;
       user!.levelPoints = user!.level * 10;
       showCustomEasyLoading(Icons.military_tech, "Level up", 3);
+      print("taskCompleted: level up");
     } else {
       showCustomEasyLoading(Icons.task_alt, "Task completed", 3);
+      print("taskCompleted: task completed");
     }
     await firebaseManager.updateUserLevel(user!.currentPoints,
         level: levelUp ? user!.level : null, levelPoints: levelUp ? user!.levelPoints : null);

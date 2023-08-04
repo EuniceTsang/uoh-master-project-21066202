@@ -16,6 +16,7 @@ class ReadingCubit extends Cubit<ReadingState> {
     apiManager = context.read<ApiManager>();
     firebaseManager = context.read<FirebaseManager>();
     taskManager = context.read<TaskManager>();
+    taskManager.resetWordCheckedInArticle();
     EasyLoading.show(
       maskType: EasyLoadingMaskType.black,
     );

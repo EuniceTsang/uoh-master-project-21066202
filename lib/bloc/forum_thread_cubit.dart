@@ -64,9 +64,13 @@ class ForumThreadCubit extends Cubit<ForumThreadState> {
         postTime: DateTime.now(),
         likedUsers: [],
         threadId: thread!.threadId);
-    await firebaseManager.addComment(comment);
-    await loadThreadData();
-    await taskManager.checkTasksAchieve([TaskType.ReplyInForum]);
+    try {
+      await firebaseManager.addComment(comment);
+      await loadThreadData();
+      await taskManager.checkTasksAchieve([TaskType.ReplyInForum]);
+    } on CustomException catch (e) {
+      print(e);
+    }
   }
 }
 
