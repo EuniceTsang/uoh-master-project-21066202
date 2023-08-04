@@ -82,9 +82,9 @@ class _TaskScreenView extends StatelessWidget {
       height: 100,
       child: Card(
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: ListTile(
-        title: Row(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: ListTile(
+          title: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
@@ -92,15 +92,18 @@ class _TaskScreenView extends StatelessWidget {
                 task.getTaskDescription(),
                 maxLines: 2,
               )),
-              Text("+${task.points} points"),
+              SizedBox(width: 10,),
+              Text(
+                "+${task.points} points",
+                style: TextStyle(fontSize: 15, color: Colors.grey),
+              ),
             ],
-        ),
-        subtitle: Padding(
-            padding: const EdgeInsets.only(top: 8.0),
+          ),
+          subtitle: Padding(
+            padding: const EdgeInsets.only(top: 15),
             child: Row(
               children: [
                 Expanded(
-                  flex: 8,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(8),
                     child: SizedBox(
@@ -113,17 +116,17 @@ class _TaskScreenView extends StatelessWidget {
                     ),
                   ),
                 ),
-                Expanded(
-                    flex: 2,
+                SizedBox(
+                    width: 40,
                     child: Text(
                       "${task.current}/${task.target}",
                       textAlign: TextAlign.right,
                     ))
               ],
             ),
+          ),
         ),
-      ),
-          )),
+      )),
     );
   }
 }

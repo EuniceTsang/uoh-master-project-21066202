@@ -1,6 +1,20 @@
 class Utils {
-  static String dateTimeToString(DateTime dateTime){
+  static String dateTimeToString(DateTime dateTime) {
     return dateTime.toString();
+  }
+
+  static String? dateTimeToStringNullable(DateTime? dateTime) {
+    if (dateTime == null) {
+      return null;
+    }
+    return dateTime.toString();
+  }
+
+  static DateTime? stringToDateTimeNullable(String? dateTimeString) {
+    if (dateTimeString == null) {
+      return null;
+    }
+    return DateTime.parse(dateTimeString);
   }
 
   static String formatTimeDifference(DateTime dateTime) {
@@ -15,5 +29,4 @@ class Utils {
       return '${difference.inDays}d';
     }
   }
-
 }

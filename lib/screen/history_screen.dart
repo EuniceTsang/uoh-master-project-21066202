@@ -3,7 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:source_code/bloc/history_cubit.dart';
 import 'package:source_code/models/article.dart';
+import 'package:source_code/models/task.dart';
 import 'package:source_code/models/word.dart';
+import 'package:source_code/screen/dictionary_screen.dart';
 import 'package:source_code/utils/constants.dart';
 
 class HistoryScreen extends StatelessWidget {
@@ -93,7 +95,8 @@ class _HistoryScreenView extends StatelessWidget {
                   size: 15,
                 ),
                 onTap: () {
-                  Navigator.pushNamed(context, Constants.routeDictionary, arguments: word.word);
+                  Navigator.pushNamed(context, Constants.routeDictionary,
+                      arguments: {DictionaryScreen.KEY_WORD: word.word, DictionaryScreen.KEY_TASK_TYPE: TaskType.ReviseWordHistory});
                 },
               );
             },

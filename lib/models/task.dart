@@ -27,8 +27,10 @@ class Task {
   bool finished;
 
   @JsonKey(
-      name: TaskFields.last_update_time, fromJson: DateTime.parse, toJson: Utils.dateTimeToString)
-  DateTime lastUpdateTime;
+      name: TaskFields.last_update_time,
+      fromJson: Utils.stringToDateTimeNullable,
+      toJson: Utils.dateTimeToStringNullable)
+  DateTime? lastUpdateTime;
 
   Task({
     required this.taskId,
@@ -38,7 +40,7 @@ class Task {
     required this.current,
     required this.points,
     required this.finished,
-    required this.lastUpdateTime,
+    this.lastUpdateTime,
   });
 
   factory Task.fromJson(Map<String, dynamic> json) => _$TaskFromJson(json);
@@ -68,6 +70,18 @@ class Task {
     }
   }
 
+  @override
+  String toString() {
+    return 'Task { '
+        'taskId: $taskId, '
+        'userId: $userId, '
+        'type: ${getTaskDescription()}, '
+        'progress: $current/$target, '
+        'points: $points, '
+        'finished: $finished, '
+        'lastUpdateTime: $lastUpdateTime '
+        '}';
+  }
 }
 
 class TaskFields {

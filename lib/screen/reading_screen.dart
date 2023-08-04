@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:source_code/bloc/reading_cubit.dart';
 import 'package:source_code/models/article.dart';
+import 'package:source_code/models/task.dart';
+import 'package:source_code/screen/dictionary_screen.dart';
 import 'package:source_code/utils/constants.dart';
 
 class ReadingScreen extends StatelessWidget {
@@ -34,8 +36,10 @@ class _ReadingScreenView extends StatelessWidget {
             ? FloatingActionButton.extended(
                 label: const Text('Search this word'),
                 onPressed: () {
-                  Navigator.pushNamed(context, Constants.routeDictionary,
-                      arguments: state.selectedWord);
+                  Navigator.pushNamed(context, Constants.routeDictionary, arguments: {
+                    DictionaryScreen.KEY_WORD: state.selectedWord,
+                    DictionaryScreen.KEY_TASK_TYPE: TaskType.VocabularyCheckInReading
+                  });
                   cubit.clearSelectedWord();
                 })
             : null,
@@ -113,7 +117,7 @@ class _ReadingScreenView extends StatelessWidget {
             child: Text(
               word + ' ',
               style: TextStyle(
-                  color: state.isSelectingWord && word.contains(state.selectedWord!)
+                  color: state.isSelectingWord && word.replaceAll(RegExp(r'[^a-zA-Z]'), '').toLowerCase() == state.selectedWord!
                       ? Colors.blue
                       : Colors.black,
                   fontSize: 15),

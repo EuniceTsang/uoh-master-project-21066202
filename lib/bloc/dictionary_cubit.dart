@@ -2,20 +2,28 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:source_code/models/task.dart';
 import 'package:source_code/models/word.dart';
 import 'package:source_code/service/api_manager.dart';
 import 'package:source_code/service/firebase_manager.dart';
+import 'package:source_code/service/task_manager.dart';
 
 class DictionaryCubit extends Cubit<DictionaryState> {
   late final FirebaseManager firebaseManager;
   late final ApiManager apiManager;
+  late final TaskManager taskManager;
   AudioPlayer audioPlayer = AudioPlayer();
   String word;
+  List<TaskType> checkTaskTypes = [];
 
-  DictionaryCubit(BuildContext context, this.word)
+  DictionaryCubit(BuildContext context, this.word, TaskType? taskType)
       : super(DictionaryState(searchingWord: word, isSearching: true, isLoading: true)) {
     apiManager = context.read<ApiManager>();
     firebaseManager = context.read<FirebaseManager>();
+    taskManager = context.read<TaskManager>();
+    if (taskType != null) {
+      checkTaskTypes.add(taskType);
+    }
     performSearch();
   }
 
@@ -25,11 +33,15 @@ class DictionaryCubit extends Cubit<DictionaryState> {
     );
     emit(state.copyWith(isLoading: true));
     Word? wordData = await apiManager.searchWord(state.searchingWord.toLowerCase());
-    if (wordData != null) {
-      await firebaseManager.updateWordHistory(wordData);
-    }
     EasyLoading.dismiss();
     emit(state.copyWith(isLoading: false, wordData: wordData));
+    if (wordData != null) {
+      bool isNewWord = await firebaseManager.updateWordHistory(wordData);
+      if (isNewWord) {
+        checkTaskTypes.add(TaskType.VocabularyCheck);
+      }
+      taskManager.checkTasksAchieve(checkTaskTypes);
+    }
   }
 
   void playAudio() {

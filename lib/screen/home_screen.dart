@@ -5,9 +5,11 @@ import 'package:shimmer/shimmer.dart';
 import 'package:source_code/bloc/base_navigation_cubit.dart';
 import 'package:source_code/bloc/home_cubit.dart';
 import 'package:source_code/models/article.dart';
+import 'package:source_code/models/task.dart';
 import 'package:source_code/models/thread.dart';
 import 'package:source_code/models/user.dart';
 import 'package:source_code/models/word.dart';
+import 'package:source_code/screen/dictionary_screen.dart';
 import 'package:source_code/utils/constants.dart';
 import 'package:source_code/utils/utils.dart';
 
@@ -74,7 +76,8 @@ class _HomeScreenView extends StatelessWidget {
         onSubmitted: (value) {
           cubit.clearSearching();
           _searchController.clear();
-          Navigator.pushNamed(context, Constants.routeDictionary, arguments: value);
+          Navigator.pushNamed(context, Constants.routeDictionary,
+              arguments: {DictionaryScreen.KEY_WORD: value});
         },
         focusNode: _searchFocusNode,
         autofocus: false,
@@ -217,8 +220,10 @@ class _HomeScreenView extends StatelessWidget {
                 padding: const EdgeInsets.all(10),
                 child: InkWell(
                   onTap: () {
-                    Navigator.pushNamed(context, Constants.routeDictionary,
-                        arguments: wordOfTheDay.word);
+                    Navigator.pushNamed(context, Constants.routeDictionary, arguments: {
+                      DictionaryScreen.KEY_WORD: wordOfTheDay.word,
+                      DictionaryScreen.KEY_TASK_TYPE: TaskType.WordOfTheDay
+                    });
                   },
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start, // Align children to the left
@@ -325,7 +330,10 @@ class _HomeScreenView extends StatelessWidget {
                       size: 15,
                     ),
                     onTap: () {
-                      Navigator.pushNamed(context, Constants.routeDictionary, arguments: word.word);
+                      Navigator.pushNamed(context, Constants.routeDictionary, arguments: {
+                        DictionaryScreen.KEY_WORD: word.word,
+                        DictionaryScreen.KEY_TASK_TYPE: TaskType.ReviseWordHistory
+                      });
                     },
                   );
                 },

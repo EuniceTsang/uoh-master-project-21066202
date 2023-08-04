@@ -14,7 +14,8 @@ Task _$TaskFromJson(Map<String, dynamic> json) => Task(
       current: json['current'] as int,
       points: json['points'] as int,
       finished: json['finished'] as bool,
-      lastUpdateTime: DateTime.parse(json['last_update_time'] as String),
+      lastUpdateTime:
+          Utils.stringToDateTimeNullable(json['last_update_time'] as String?),
     );
 
 Map<String, dynamic> _$TaskToJson(Task instance) => <String, dynamic>{
@@ -25,5 +26,6 @@ Map<String, dynamic> _$TaskToJson(Task instance) => <String, dynamic>{
       'current': instance.current,
       'points': instance.points,
       'finished': instance.finished,
-      'last_update_time': Utils.dateTimeToString(instance.lastUpdateTime),
+      'last_update_time':
+          Utils.dateTimeToStringNullable(instance.lastUpdateTime),
     };

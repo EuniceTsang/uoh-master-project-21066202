@@ -2,18 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:source_code/bloc/dictionary_cubit.dart';
+import 'package:source_code/models/task.dart';
 import 'package:source_code/models/word.dart';
 
 class DictionaryScreen extends StatelessWidget {
   const DictionaryScreen({super.key});
 
+  static const String KEY_WORD = 'word';
+  static const String KEY_TASK_TYPE = 'task_type';
+
   @override
   Widget build(BuildContext context) {
-    final argument = ModalRoute.of(context)!.settings.arguments;
-    String? word = argument != null && argument is String ? argument : null;
+    final argument = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    String? word = argument[KEY_WORD] is String ? argument[KEY_WORD] : null;
+    TaskType? checkTaskType = argument[KEY_TASK_TYPE] is TaskType ? argument[KEY_TASK_TYPE] : null;
+
     return BlocProvider(
         create: (BuildContext context) {
-          return DictionaryCubit(context, word!);
+          return DictionaryCubit(context, word!, checkTaskType);
         },
         child: _DictionaryScreenView());
   }
@@ -36,7 +42,11 @@ class _DictionaryScreenView extends StatelessWidget {
         body: state.isLoading
             ? Container()
             : Padding(
-                padding: const EdgeInsets.only(top: 8.0,left: 8.0,right: 8.0,),
+                padding: const EdgeInsets.only(
+                  top: 8.0,
+                  left: 8.0,
+                  right: 8.0,
+                ),
                 child: state.wordData != null
                     ? Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -90,6 +100,7 @@ class _DictionaryScreenView extends StatelessWidget {
           cubit.searchingWord(value);
         },
         onSubmitted: (value) {
+          cubit.checkTaskTypes.clear();
           cubit.performSearch();
         },
         focusNode: _searchFocusNode,

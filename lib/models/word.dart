@@ -54,8 +54,8 @@ class Word {
     json.forEach((wordJson) {
       try {
         String? _pos;
-        //remove all non-alphabetic characters
         String hw = findElement(wordJson, 'hw') as String;
+        //remove all non-alphabetic characters
         hw = hw.replaceAll(RegExp(r'[^a-zA-Z]'), '');
         if (hw.toLowerCase() != word.toLowerCase()) {
           return;

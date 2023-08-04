@@ -343,7 +343,8 @@ class FirebaseManager {
 //endregion
 
 //region word
-  Future<void> updateWordHistory(Word word) async {
+  //true = new word, false = word in history
+  Future<bool> updateWordHistory(Word word) async {
     try {
       QuerySnapshot querySnapshot = await db
           .collection(WordFields.collection)
@@ -353,6 +354,7 @@ class FirebaseManager {
       if (querySnapshot.docs.isEmpty) {
         DocumentReference doc = await db.collection(WordFields.collection).add(word.toJson());
         print('word created with ID: ${doc.id}');
+        return true;
       } else {
         DocumentReference wordRef = querySnapshot.docs.first.reference;
         await wordRef.update(
@@ -361,10 +363,12 @@ class FirebaseManager {
           },
         );
         print('updated word');
+        return false;
       }
     } catch (e) {
       print("updateWord failed: $e");
     }
+    return false;
   }
 
   Future<List<Word>> getWordHistory() async {
@@ -396,7 +400,8 @@ class FirebaseManager {
 //endregion
 
 //region article
-  Future<void> updateArticleHistory(Article article) async {
+  //true = new article, false = article in history
+  Future<bool> updateArticleHistory(Article article) async {
     try {
       QuerySnapshot querySnapshot = await db
           .collection(ArticleFields.collection)
@@ -406,6 +411,7 @@ class FirebaseManager {
       if (querySnapshot.docs.isEmpty) {
         DocumentReference doc = await db.collection(ArticleFields.collection).add(article.toJson());
         print('article created with ID: ${doc.id}');
+        return true;
       } else {
         DocumentReference articleRef = querySnapshot.docs.first.reference;
         await articleRef.update(
@@ -414,10 +420,12 @@ class FirebaseManager {
           },
         );
         print('updated article');
+        return false;
       }
     } catch (e) {
       print("updateArticle failed: $e");
     }
+    return false;
   }
 
   Future<List<Article>> getArticleHistory() async {
@@ -517,7 +525,7 @@ class FirebaseManager {
           {
             TaskFields.finished: task.finished,
             TaskFields.current: task.current,
-            TaskFields.last_update_time: task.lastUpdateTime.toString(),
+            TaskFields.last_update_time: DateTime.now().toString(),
           },
         );
         print('updated task');
