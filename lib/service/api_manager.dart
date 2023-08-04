@@ -21,6 +21,9 @@ class ApiManager {
       final response = await dio.get(
           'https://www.dictionaryapi.com/api/v3/references/learners/json/$word?key=$dictionaryApiKey');
       if (response.statusCode == 200) {
+        if (response.data is List && response.data.every((item) => item is String)) {
+          return await searchWord(response.data[0]);
+        }
         Word? wordObj = Word.parseFromApi(word, response.data);
         if (wordObj != null) {
           print("searchWord: " + wordObj.toString());

@@ -58,7 +58,12 @@ class Word {
         //remove all non-alphabetic characters
         hw = hw.replaceAll(RegExp(r'[^a-zA-Z]'), '');
         if (hw.toLowerCase() != word.toLowerCase()) {
-          return;
+          List stems = findElement(wordJson, 'stems') as List;
+          if (!stems.contains(word)) {
+            return;
+          } else {
+            word = hw;
+          }
         }
         _syllable = findElement(wordJson, 'ipa') as String;
         String audioFileName = findElement(wordJson, 'audio') as String;

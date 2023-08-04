@@ -31,6 +31,7 @@ class DictionaryCubit extends Cubit<DictionaryState> {
     EasyLoading.show(
       maskType: EasyLoadingMaskType.black,
     );
+    word = state.searchingWord;
     emit(state.copyWith(isLoading: true));
     Word? wordData = await apiManager.searchWord(state.searchingWord.toLowerCase());
     EasyLoading.dismiss();
@@ -41,6 +42,9 @@ class DictionaryCubit extends Cubit<DictionaryState> {
         checkTaskTypes.add(TaskType.VocabularyCheck);
       }
       taskManager.checkTasksAchieve(checkTaskTypes);
+    } else {
+      state.wordData = null;
+      emit(state);
     }
   }
 
@@ -58,12 +62,12 @@ class DictionaryCubit extends Cubit<DictionaryState> {
 }
 
 class DictionaryState {
-  final bool isLoading;
-  final bool isSearching;
-  final String searchingWord;
-  final Word? wordData;
+  bool isLoading;
+  bool isSearching;
+  String searchingWord;
+  Word? wordData;
 
-  const DictionaryState(
+  DictionaryState(
       {this.isLoading = false, this.isSearching = false, this.searchingWord = '', this.wordData});
 
   DictionaryState copyWith({

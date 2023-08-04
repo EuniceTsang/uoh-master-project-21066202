@@ -41,51 +41,78 @@ class _DictionaryScreenView extends StatelessWidget {
         appBar: _buildAppBar(context),
         body: state.isLoading
             ? Container()
-            : Padding(
-                padding: const EdgeInsets.only(
-                  top: 8.0,
-                  left: 8.0,
-                  right: 8.0,
-                ),
-                child: state.wordData != null
-                    ? Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ListTile(
-                            title: Text(
-                              state.wordData!.word,
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
+            : Column(
+                children: [
+                  Visibility(
+                      visible: state.wordData != null && cubit.word != state.wordData!.word,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Color(0xffD9D9D9),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.5),
+                              spreadRadius: 2,
+                              blurRadius: 5,
+                              offset: Offset(0, 3),
                             ),
-                            subtitle: Padding(
-                              padding: const EdgeInsets.only(top: 5),
-                              child: Text(state.wordData!.syllable),
-                            ),
-                            trailing: IconButton(
-                              icon: Icon(
-                                Icons.volume_up_rounded,
-                                size: 30,
-                              ),
-                              onPressed: state.wordData!.audioUrl == null
-                                  ? null
-                                  : () {
-                                      cubit.playAudio();
-                                    },
-                            ),
-                          ),
-                          Expanded(
-                            child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                                child: _buildDefinitionListView(context)),
-                          )
-                        ],
-                      )
-                    : Container(
-                        height: MediaQuery.of(context).size.height - 80,
+                          ],
+                        ),
                         child: Center(
-                            child: Text(
-                          "Cannot find this word",
-                          style: TextStyle(color: Colors.grey, fontSize: 20),
-                        ))),
+                            child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                              "No exact match found for the word.\nShowing similar words instead."),
+                        )),
+                      )),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                        top: 8.0,
+                        left: 8.0,
+                        right: 8.0,
+                      ),
+                      child: state.wordData != null
+                          ? Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                ListTile(
+                                  title: Text(
+                                    state.wordData!.word,
+                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
+                                  ),
+                                  subtitle: Padding(
+                                    padding: const EdgeInsets.only(top: 5),
+                                    child: Text(state.wordData!.syllable),
+                                  ),
+                                  trailing: IconButton(
+                                    icon: Icon(
+                                      Icons.volume_up_rounded,
+                                      size: 30,
+                                    ),
+                                    onPressed: state.wordData!.audioUrl == null
+                                        ? null
+                                        : () {
+                                            cubit.playAudio();
+                                          },
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                      child: _buildDefinitionListView(context)),
+                                )
+                              ],
+                            )
+                          : Container(
+                              height: MediaQuery.of(context).size.height - 80,
+                              child: Center(
+                                  child: Text(
+                                state.isLoading ? "" : "Cannot find this word",
+                                style: TextStyle(color: Colors.grey, fontSize: 20),
+                              ))),
+                    ),
+                  ),
+                ],
               ),
       );
     });
