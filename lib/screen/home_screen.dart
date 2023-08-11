@@ -1,6 +1,9 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:focus_detector/focus_detector.dart';
+import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:source_code/bloc/base_navigation_cubit.dart';
 import 'package:source_code/bloc/home_cubit.dart';
@@ -11,6 +14,7 @@ import 'package:source_code/models/user.dart';
 import 'package:source_code/models/word.dart';
 import 'package:source_code/screen/dictionary_screen.dart';
 import 'package:source_code/utils/constants.dart';
+import 'package:source_code/utils/preference.dart';
 import 'package:source_code/utils/utils.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -118,7 +122,7 @@ class _HomeScreenView extends StatelessWidget {
     HomeCubit cubit = context.read<HomeCubit>();
     HomeState state = cubit.state;
     AppUser? user = state.user;
-    return state.loading
+    return state.loading || user == null
         ? _buildLoadingBlock()
         : Card(
             child: Padding(
@@ -129,12 +133,23 @@ class _HomeScreenView extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start, // Align children to the left
                 children: [
                   Text(
-                    "Hi, ${user!.username}!",
-                    style: TextStyle(fontSize: 30),
+                    "Hi, ${user.username}!",
+                    style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 5),
-                    child: Text("Level ${user.level}"),
+                    child: Row(
+                      children: [
+                        Text("Level ${user.level}", style: TextStyle(fontSize: 20)),
+                        Spacer(),
+                        ElevatedButton(
+                            style: ElevatedButton.styleFrom(backgroundColor: Color(0xffFFE66D)),
+                            onPressed: () {
+                              Navigator.pushNamed(context, Constants.routeTask);
+                            },
+                            child: Text("Check my tasks")),
+                      ],
+                    ),
                   ),
                   Row(
                     children: [
@@ -147,7 +162,7 @@ class _HomeScreenView extends StatelessWidget {
                             child: LinearProgressIndicator(
                               value: user.currentPoints / user.levelPoints,
                               backgroundColor: const Color(0xffF6F6F6),
-                              color: const Color(0xff34CA8B),
+                              color: const Color(0xff4ECDC4),
                             ),
                           ),
                         ),
@@ -160,15 +175,45 @@ class _HomeScreenView extends StatelessWidget {
                           ))
                     ],
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 5),
-                    child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(backgroundColor: Color(0xffFFDF8B)),
-                        onPressed: () {
-                          Navigator.pushNamed(context, Constants.routeTask);
-                        },
-                        child: Text("Check my tasks")),
-                  )
+                  Visibility(
+                      visible: Preferences().targetReading > 0,
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 15),
+                            child: Row(
+                              children: [
+                                Text("Reading Target", style: TextStyle(fontSize: 20)),
+                                Spacer()
+                              ],
+                            ),
+                          ),
+                          Row(
+                            children: [
+                              Expanded(
+                                flex: 8,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: SizedBox(
+                                    height: 15,
+                                    child: LinearProgressIndicator(
+                                      value: max(min(state.readingCount / Preferences().targetReading, 1), 0),
+                                      backgroundColor: const Color(0xffF6F6F6),
+                                      color: const Color(0xffFF6B6B),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                  flex: 2,
+                                  child: Text(
+                                    "${state.readingCount} / ${Preferences().targetReading}",
+                                    textAlign: TextAlign.right,
+                                  ))
+                            ],
+                          ),
+                        ],
+                      ))
                 ],
               ),
             ),

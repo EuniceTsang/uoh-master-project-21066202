@@ -5,6 +5,7 @@ class Preferences {
   static const String USERNAME_KEY = 'username';
   static const String UID_KEY = 'uid';
   static const String TARGET_TIME_KEY = 'target_time';
+  static const String TARGET_READING_KEY = 'target_reading';
 
   static final Preferences _sharedInstance = Preferences._internal();
 
@@ -35,15 +36,20 @@ class Preferences {
 
   String get uid => _getStorage().read(UID_KEY) ?? '';
 
+  Future<void> savePrefForLoggedIn(String username, String uid) async {
+    await setUsername(username);
+    await setUid(uid);
+  }
+  String get targetTime => _getStorage().read(TARGET_TIME_KEY) ?? '';
+
   Future<void> setTargetTime(String targetTime) {
     return _getStorage().write(TARGET_TIME_KEY, targetTime);
   }
 
-  String get targetTime => _getStorage().read(TARGET_TIME_KEY) ?? '';
+  int get targetReading => _getStorage().read(TARGET_READING_KEY) ?? -1;
 
-  Future<void> savePrefForLoggedIn(String username, String uid) async {
-    await setUsername(username);
-    await setUid(uid);
+  Future<void> setTargetReading(int targetReading) {
+    return _getStorage().write(TARGET_READING_KEY, targetReading);
   }
 
   Future<void> clearPrefForLoggedOut() async {

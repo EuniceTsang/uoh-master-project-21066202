@@ -35,7 +35,8 @@ class AccountCubit extends Cubit<AccountState> {
   void clearTargetReading() async {
     try {
       await firebaseManager.updateTargetReading(null);
-      emit(state.copyWith(targetTime: null, targetReading: state.targetReading));
+      await Preferences().setTargetReading(0);
+      emit(state.copyWith(targetTime: state.targetTime, targetReading: null));
     } on CustomException catch (e) {
       print(e.message);
     }
@@ -46,7 +47,7 @@ class AccountCubit extends Cubit<AccountState> {
       await firebaseManager.updateTargetReadingTime(null);
       await Preferences().setTargetTime(state.targetTime ?? '');
       await notificationManager.scheduleNotification();
-      emit(state.copyWith(targetTime: state.targetTime, targetReading: null));
+      emit(state.copyWith(targetTime: null, targetReading: state.targetReading));
     } on CustomException catch (e) {
       print(e.message);
     }
@@ -55,6 +56,7 @@ class AccountCubit extends Cubit<AccountState> {
   void changeTargetReading(int targetReading) async {
     try {
       await firebaseManager.updateTargetReading(targetReading);
+      await Preferences().setTargetReading(targetReading);
       emit(state.copyWith(targetTime: state.targetTime, targetReading: targetReading));
     } on CustomException catch (e) {
       print(e.message);

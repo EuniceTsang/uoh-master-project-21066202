@@ -1,13 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:source_code/models/article.dart';
 import 'package:source_code/models/thread.dart';
 import 'package:source_code/models/user.dart';
 import 'package:source_code/models/word.dart';
 import 'package:source_code/service/api_manager.dart';
 import 'package:source_code/service/firebase_manager.dart';
+import 'package:source_code/utils/preference.dart';
 
 class HomeCubit extends Cubit<HomeState> {
   late FirebaseManager firebaseManager;
@@ -26,6 +26,10 @@ class HomeCubit extends Cubit<HomeState> {
     List<Article> articles = await apiManager.getPopularArticles();
     Word? wordOfTheDay = await apiManager.getWordOfTheDay();
     AppUser? user = await firebaseManager.getUserData(firebaseManager.uid);
+    int readingCount = 0;
+    if (Preferences().targetReading > 0) {
+      readingCount = await firebaseManager.getArticleCountToday();
+    }
     needReload = false;
     emit(state.copyWith(
         user: user,
@@ -33,7 +37,8 @@ class HomeCubit extends Cubit<HomeState> {
         threads: threads.take(3).toList(),
         article: articles.isEmpty ? null : articles.first,
         wordOfTheDay: wordOfTheDay,
-        loading: false));
+        loading: false,
+        readingCount: readingCount));
   }
 
   void clearSearching() {
@@ -54,6 +59,7 @@ class HomeState {
   final Word? wordOfTheDay;
   final AppUser? user;
   final bool loading;
+  final int readingCount;
 
   const HomeState(
       {this.isSearching = false,
@@ -63,7 +69,8 @@ class HomeState {
       this.article,
       this.user,
       this.wordOfTheDay,
-      this.loading = true});
+      this.loading = true,
+      this.readingCount = 0});
 
   HomeState copyWith(
       {bool? isSearching,
@@ -74,7 +81,8 @@ class HomeState {
       Word? wordOfTheDay,
       AppUser? user,
       bool? needReload,
-      bool? loading}) {
+      bool? loading,
+      int? readingCount}) {
     return HomeState(
       isSearching: isSearching ?? this.isSearching,
       searchingWord: searchingWord ?? this.searchingWord,
@@ -84,6 +92,7 @@ class HomeState {
       user: user ?? this.user,
       wordOfTheDay: wordOfTheDay ?? this.wordOfTheDay,
       loading: loading ?? this.loading,
+      readingCount: readingCount ?? this.readingCount,
     );
   }
 }

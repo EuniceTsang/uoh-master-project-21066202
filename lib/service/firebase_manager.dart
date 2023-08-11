@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart';
 import 'package:source_code/models/article.dart';
 import 'package:source_code/models/comment.dart';
 import 'package:source_code/models/task.dart';
@@ -112,8 +113,11 @@ class FirebaseManager {
         print("getUserData: $map");
         AppUser appUser = AppUser.fromJson(map);
         //save target time to preference
-        if (appUser.targetTime != null) {
+        if (userId == uid && appUser.targetTime != null) {
           Preferences().setTargetTime(appUser.targetTime!);
+        }
+        if (userId == uid && appUser.targetReading != null) {
+          Preferences().setTargetReading(appUser.targetReading!);
         }
         return appUser;
       } else {
@@ -470,6 +474,23 @@ class FirebaseManager {
       print("getArticleHistory: $e");
       print("getArticleHistory: $stacktrace");
       return [];
+    }
+  }
+
+  Future<int> getArticleCountToday() async {
+    try {
+      String todayString = DateFormat('yyyy-MM-dd').format(DateTime.now());
+      AggregateQuerySnapshot snapshot = await db
+          .collection(ArticleFields.collection)
+          .where(ArticleFields.user_id, isEqualTo: uid)
+          .where(ArticleFields.search_time, isGreaterThanOrEqualTo: todayString)
+          .count()
+          .get();
+      return snapshot.count;
+    } catch (e, stacktrace) {
+      print("getArticleCountToday: $e");
+      print("getArticleCountToday: $stacktrace");
+      return 0;
     }
   }
 

@@ -26,8 +26,8 @@ class _ForumListScreenView extends StatelessWidget {
       Tab(text: 'New post'),
       Tab(text: 'My post'),
     ],
-    indicatorColor: Color(0xffFFDF8B),
-    labelColor: Color(0xffFFDF8B),
+    indicatorColor: Color(0xffFFE66D),
+    labelColor: Color(0xffFFE66D),
     unselectedLabelColor: Colors.black,
   );
 
