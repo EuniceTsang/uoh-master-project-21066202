@@ -15,12 +15,14 @@ import 'package:source_code/screen/task_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:source_code/service/api_manager.dart';
 import 'package:source_code/service/firebase_manager.dart';
+import 'package:source_code/service/notification_manager.dart';
 import 'package:source_code/service/task_manager.dart';
 import 'service/firebase_options.dart';
 import 'utils/constants.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await NotificationManager().initNotification();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -37,14 +39,20 @@ class MyApp extends StatelessWidget {
     final FirebaseManager firebaseManager = FirebaseManager();
     return MultiRepositoryProvider(
       providers: [
+        //database and authentication
         RepositoryProvider<FirebaseManager>(
           create: (_) => firebaseManager,
         ),
+        //call api
         RepositoryProvider<ApiManager>(
           create: (_) => ApiManager(),
         ),
+        //track tasks
         RepositoryProvider<TaskManager>(
           create: (_) => TaskManager(firebaseManager),
+        ),
+        RepositoryProvider<NotificationManager>(
+          create: (_) => NotificationManager(),
         ),
       ],
       child: MaterialApp(
@@ -54,7 +62,7 @@ class MyApp extends StatelessWidget {
             scaffoldBackgroundColor: const Color(0xffF6F6F6),
             textSelectionTheme: TextSelectionThemeData(selectionHandleColor: CupertinoColors.systemGrey4)
           ),
-          initialRoute: "/launch",
+          initialRoute: Constants.routeLaunch,
           builder: EasyLoading.init(),
           routes: {
             Constants.routeLaunch: (context) => const LaunchScreen(),

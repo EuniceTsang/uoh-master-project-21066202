@@ -5,6 +5,7 @@ import 'package:source_code/service/firebase_manager.dart';
 import 'package:source_code/service/task_manager.dart';
 import 'package:source_code/utils/constants.dart';
 import 'package:source_code/utils/preference.dart';
+import 'package:source_code/utils/utils.dart';
 
 class LaunchScreen extends StatefulWidget {
   const LaunchScreen({Key? key}) : super(key: key);
@@ -35,8 +36,7 @@ class _LaunchState extends State<LaunchScreen> {
       await Preferences().clearPrefForLoggedOut();
       Navigator.pushReplacementNamed(context, Constants.routeLogin);
     } else {
-      await taskManager.loadTask();
-      Navigator.pushReplacementNamed(context, Constants.routeBaseNavigation);
+      Utils.loginInitialTasks(context);
     }
   }
 }

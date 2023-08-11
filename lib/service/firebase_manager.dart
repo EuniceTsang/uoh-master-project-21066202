@@ -109,8 +109,13 @@ class FirebaseManager {
           .get();
       if (querySnapshot.docs.isNotEmpty) {
         Map<String, dynamic> map = querySnapshot.docs.first.data() as Map<String, dynamic>;
-        print("getUserData: map");
-        return AppUser.fromJson(map);
+        print("getUserData: $map");
+        AppUser appUser = AppUser.fromJson(map);
+        //save target time to preference
+        if (appUser.targetTime != null) {
+          Preferences().setTargetTime(appUser.targetTime!);
+        }
+        return appUser;
       } else {
         throw Exception("Cannot find user profile for $userId");
       }

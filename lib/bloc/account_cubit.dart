@@ -2,14 +2,17 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:source_code/models/user.dart';
 import 'package:source_code/service/firebase_manager.dart';
+import 'package:source_code/service/notification_manager.dart';
 import 'package:source_code/utils/constants.dart';
 import 'package:source_code/utils/preference.dart';
 
 class AccountCubit extends Cubit<AccountState> {
   late FirebaseManager firebaseManager;
+  late NotificationManager notificationManager;
 
   AccountCubit(BuildContext context) : super(const AccountState()) {
     firebaseManager = context.read<FirebaseManager>();
+    notificationManager = context.read<NotificationManager>();
     loadUserData();
   }
 
@@ -21,6 +24,7 @@ class AccountCubit extends Cubit<AccountState> {
   Future<void> logout(BuildContext context) async {
     try {
       await firebaseManager.logout();
+      await notificationManager.cancelScheduleNotification();
       await Preferences().clearPrefForLoggedOut();
       Navigator.pushReplacementNamed(context, Constants.routeLogin);
     } on CustomException catch (e) {
@@ -40,6 +44,8 @@ class AccountCubit extends Cubit<AccountState> {
   void clearTargetTime() async {
     try {
       await firebaseManager.updateTargetReadingTime(null);
+      await Preferences().setTargetTime(state.targetTime ?? '');
+      await notificationManager.scheduleNotification();
       emit(state.copyWith(targetTime: state.targetTime, targetReading: null));
     } on CustomException catch (e) {
       print(e.message);
@@ -58,6 +64,8 @@ class AccountCubit extends Cubit<AccountState> {
   void changeTargetTime(String targetTime) async {
     try {
       await firebaseManager.updateTargetReadingTime(targetTime);
+      await Preferences().setTargetTime(targetTime ?? '');
+      await notificationManager.scheduleNotification();
       emit(state.copyWith(targetTime: targetTime, targetReading: state.targetReading));
     } on CustomException catch (e) {
       print(e.message);

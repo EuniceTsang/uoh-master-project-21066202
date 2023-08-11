@@ -1,3 +1,9 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:source_code/service/notification_manager.dart';
+import 'package:source_code/service/task_manager.dart';
+import 'package:source_code/utils/constants.dart';
+
 class Utils {
   static String dateTimeToString(DateTime dateTime) {
     return dateTime.toString();
@@ -28,5 +34,15 @@ class Utils {
     } else {
       return '${difference.inDays}d';
     }
+  }
+
+  static Future loginInitialTasks(BuildContext context) async {
+    TaskManager taskManager = context.read<TaskManager>();
+    NotificationManager notificationManager = context.read<NotificationManager>();
+    await taskManager.loadTask();
+    if (taskManager.user != null) {
+      notificationManager.scheduleNotification();
+    }
+    Navigator.pushReplacementNamed(context, Constants.routeBaseNavigation);
   }
 }
