@@ -1,3 +1,4 @@
+import 'package:firebase_performance/firebase_performance.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:source_code/models/article.dart';
@@ -15,6 +16,8 @@ class ReadingListCubit extends Cubit<ReadingListState> {
   }
 
   Future<void> getArticles({String? keyword}) async {
+    Trace customTrace = FirebasePerformance.instance.newTrace('reading-list-screen-loading');
+    await customTrace.start();
     emit(state.copyWith(loading: true));
     List<Article> articles = [];
     if (keyword == null) {
@@ -23,6 +26,7 @@ class ReadingListCubit extends Cubit<ReadingListState> {
       articles = await apiManager.searchArticles(keyword);
     }
     emit(state.copyWith(articles: articles, loading: false));
+    await customTrace.stop();
   }
 
   void clearSearching() {

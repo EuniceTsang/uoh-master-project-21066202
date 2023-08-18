@@ -1,3 +1,4 @@
+import 'package:firebase_performance/firebase_performance.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:source_code/models/user.dart';
@@ -17,8 +18,11 @@ class AccountCubit extends Cubit<AccountState> {
   }
 
   void loadUserData() async {
+    Trace customTrace = FirebasePerformance.instance.newTrace('account-screen-loading');
+    await customTrace.start();
     AppUser? user = await firebaseManager.getUserData(firebaseManager.uid);
     emit(state.copyWith(targetTime: user?.targetTime, targetReading: user?.targetReading));
+    await customTrace.stop();
   }
 
   Future<void> logout(BuildContext context) async {

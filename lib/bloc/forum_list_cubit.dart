@@ -1,3 +1,4 @@
+import 'package:firebase_performance/firebase_performance.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:source_code/models/thread.dart';
@@ -21,10 +22,13 @@ class ForumListCubit extends Cubit<ForumListState> {
   }
 
   Future<void> loadForumData() async {
+    Trace customTrace = FirebasePerformance.instance.newTrace('forum-list-screen-loading');
+    await customTrace.start();
     List<Thread> allThreadList = await firebaseManager.getThreadList();
     List<Thread> myThreadList =
         allThreadList.where((element) => element.userId == Preferences().uid).toList();
     emit(state.copyWith(newThreads: allThreadList, myThreads: myThreadList, loading: false));
+    await customTrace.stop();
   }
 
   void createThread(String title, String body) async {

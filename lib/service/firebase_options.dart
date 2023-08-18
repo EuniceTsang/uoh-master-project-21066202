@@ -55,7 +55,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyB24pwl0rf8HCoBlXmfD3b5OeKaZgmBX04',
-    appId: '1:529528003363:android:a6a1eb5498e18074ca0a96',
+    appId: '1:529528003363:android:db198cda34d08bc2ca0a96',
     messagingSenderId: '529528003363',
     projectId: 'uoh-master-project-21066202',
     storageBucket: 'uoh-master-project-21066202.appspot.com',
@@ -63,12 +63,12 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyD_U7CEg6VFrsXsGwSVsBehq8-stA9XEho',
-    appId: '1:529528003363:ios:ea0ddd03426452f9ca0a96',
+    appId: '1:529528003363:ios:931782ce7708dacdca0a96',
     messagingSenderId: '529528003363',
     projectId: 'uoh-master-project-21066202',
     storageBucket: 'uoh-master-project-21066202.appspot.com',
-    iosClientId: '529528003363-f7mnfb2mmrfkfe4552pi4g5irusl3n7r.apps.googleusercontent.com',
-    iosBundleId: 'com.example.sourceCode',
+    iosClientId: '529528003363-4i0da0gtrq5nc3lmltqtk7j2b68f8oms.apps.googleusercontent.com',
+    iosBundleId: 'com.winglamtsang.masterproject',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(

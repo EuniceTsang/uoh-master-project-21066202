@@ -1,3 +1,4 @@
+import 'package:firebase_performance/firebase_performance.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -21,6 +22,8 @@ class HomeCubit extends Cubit<HomeState> {
   }
 
   Future<void> loadData() async {
+    Trace customTrace = FirebasePerformance.instance.newTrace('home-screen-loading');
+    await customTrace.start();
     List<Word> wordHistory = await firebaseManager.getWordHistory();
     List<Thread> threads = await firebaseManager.getThreadList();
     List<Article> articles = await apiManager.getPopularArticles();
@@ -39,6 +42,7 @@ class HomeCubit extends Cubit<HomeState> {
         wordOfTheDay: wordOfTheDay,
         loading: false,
         readingCount: readingCount));
+    await customTrace.stop();
   }
 
   void clearSearching() {

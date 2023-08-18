@@ -1,3 +1,4 @@
+import 'package:firebase_performance/firebase_performance.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:source_code/models/task.dart';
@@ -15,9 +16,12 @@ class TaskCubit extends Cubit<TaskState> {
   }
 
   Future<void> loadTasks() async {
+    Trace customTrace = FirebasePerformance.instance.newTrace('task-screen-loading');
+    await customTrace.start();
     await taskManager.loadTask();
     emit(state.copyWith(
         currentTasks: taskManager.currentTasks, completedTasks: taskManager.completedTasks, loading: false));
+    await customTrace.stop();
   }
 }
 

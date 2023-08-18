@@ -1,3 +1,4 @@
+import 'package:firebase_performance/firebase_performance.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:source_code/models/article.dart';
@@ -13,9 +14,12 @@ class HistoryCubit extends Cubit<HistoryState> {
   }
 
   Future<void> loadHistory() async {
+    Trace customTrace = FirebasePerformance.instance.newTrace('history-screen-loading');
+    await customTrace.start();
     List<Word> wordHistory = await firebaseManager.getWordHistory();
     List<Article> articleHistory = await firebaseManager.getArticleHistory();
     emit(state.copyWith(wordHistory: wordHistory, articleHistory: articleHistory, loading: false));
+    await customTrace.stop();
   }
 }
 

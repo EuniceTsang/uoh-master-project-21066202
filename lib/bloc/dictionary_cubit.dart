@@ -1,4 +1,5 @@
 import 'package:audioplayers/audioplayers.dart';
+import 'package:firebase_performance/firebase_performance.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -28,6 +29,8 @@ class DictionaryCubit extends Cubit<DictionaryState> {
   }
 
   Future<void> performSearch() async {
+    Trace customTrace = FirebasePerformance.instance.newTrace('dictionary-screen-loading');
+    await customTrace.start();
     EasyLoading.show(
       maskType: EasyLoadingMaskType.black,
     );
@@ -46,6 +49,7 @@ class DictionaryCubit extends Cubit<DictionaryState> {
       state.wordData = null;
       emit(state);
     }
+    await customTrace.stop();
   }
 
   void playAudio() {

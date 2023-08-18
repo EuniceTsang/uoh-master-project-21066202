@@ -1,3 +1,4 @@
+import 'package:firebase_performance/firebase_performance.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:source_code/models/comment.dart';
@@ -27,8 +28,11 @@ class ForumThreadCubit extends Cubit<ForumThreadState> {
   }
 
   Future<void> loadThreadData() async {
+    Trace customTrace = FirebasePerformance.instance.newTrace('forum-thread-screen-loading');
+    await customTrace.start();
     List<Comment> comments = await firebaseManager.getComments(thread!.threadId);
     emit(state.copyWith(thread: thread, comments: comments, loading: false));
+    await customTrace.stop();
   }
 
   void toggleLikeThread() {

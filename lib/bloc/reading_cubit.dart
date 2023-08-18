@@ -1,3 +1,4 @@
+import 'package:firebase_performance/firebase_performance.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -36,9 +37,12 @@ class ReadingCubit extends Cubit<ReadingState> {
   }
 
   Future<void> loadArticle(Article article) async {
+    Trace customTrace = FirebasePerformance.instance.newTrace('reading-screen-loading');
+    await customTrace.start();
     String? body = await apiManager.getArticleBody(article);
     EasyLoading.dismiss();
     emit(state.copyWith(article: article, body: body));
+    await customTrace.stop();
   }
 
   void selectWord(String word) {
