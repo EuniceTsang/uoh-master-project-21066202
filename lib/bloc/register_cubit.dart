@@ -27,7 +27,7 @@ class RegisterCubit extends Cubit<RegisterState> {
       maskType: EasyLoadingMaskType.black,
     );
     try {
-      await firebaseManager.userRegister(state.email, state.email, state.password);
+      await firebaseManager.userRegister(state.email, state.username, state.password);
       EasyLoading.dismiss();
       Navigator.of(context).pop();
     } on CustomException catch (e) {

@@ -50,9 +50,9 @@ class FirebaseManager {
     }
   }
 
-  Future<String> createUser(String username, String password) async {
+  Future<String> createUser(String email, String password) async {
     UserCredential userCredential = await auth.createUserWithEmailAndPassword(
-      email: username,
+      email: email,
       password: password,
     );
     return userCredential.user!.uid;
