@@ -57,6 +57,7 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
           title: 'Master Project',
+          debugShowCheckedModeBanner: false,
           theme: ThemeData(
             primarySwatch: Colors.grey,
             scaffoldBackgroundColor: const Color(0xffF6F6F6),

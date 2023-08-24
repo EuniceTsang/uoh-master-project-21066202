@@ -269,6 +269,7 @@ class FirebaseManager {
       QuerySnapshot querySnapshot = await db
           .collection(CommentFields.collection)
           .where(ThreadFields.thread_id, isEqualTo: threadId)
+          .orderBy(ThreadFields.post_time, descending: false)
           .get();
 
       if (querySnapshot.docs.isNotEmpty) {
